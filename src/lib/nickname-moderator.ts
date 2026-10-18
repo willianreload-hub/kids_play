@@ -10,7 +10,8 @@ const BLOCKED_WORDS = [
   'otario', 'idiota', 'estupido', 'burro', 'desgraca', 'maldito', 'sexo',
   'nude', 'penis', 'vagina', 'piroca', 'cu', 'buceta', 'fuder', 'fode',
   'chupa', 'cacete', 'arrombado', 'babaca', 'corno', 'drogas', 'maconha',
-  'coca', 'trafico', 'matar', 'morte', 'suicidio', 'nazista', 'hitler'
+  'coca', 'trafico', 'matar', 'morte', 'suicidio', 'nazista', 'hitler',
+  'bobao', 'bobo', 'trouxa', 'feio', 'chato', 'fedido', 'imbecil'
 ];
 
 const ADDRESS_KEYWORDS = [
@@ -42,6 +43,12 @@ export function validateNickname(nickname: string): NicknameValidationResult {
     return { isValid: false, message: 'O apelido deve ter no máximo 20 letras.' };
   }
 
+  // Normalização de acentos e minúsculas para checagem precisa
+  const normalized = clean
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+
   const lower = clean.toLowerCase();
 
   // 1. Bloqueio de e-mails
@@ -64,7 +71,7 @@ export function validateNickname(nickname: string): NicknameValidationResult {
   // 3. Bloqueio de palavras que indicam endereço
   for (const word of ADDRESS_KEYWORDS) {
     const regex = new RegExp(`\\b${word}\\b`, 'i');
-    if (regex.test(lower)) {
+    if (regex.test(normalized)) {
       return {
         isValid: false,
         message: 'Por proteção à sua privacidade, não coloque endereços no seu nome!',
@@ -73,23 +80,20 @@ export function validateNickname(nickname: string): NicknameValidationResult {
   }
 
   // 4. Bloqueio de sobrenomes reais comuns (evitar expor nome civil completo de crianças)
-  const tokens = lower.split(/[\s_.-]+/);
-  let surnameMatches = 0;
-  for (const token of tokens) {
-    if (SURNAMES_DETECT.includes(token)) {
-      surnameMatches++;
+  for (const surname of SURNAMES_DETECT) {
+    // Detecta sobrenome isolado, como sufixo/prefixo com CamelCase, números ou separadores
+    const surnameRegex = new RegExp(`(^|[\\s_.-])${surname}([\\s_.-]|\\d|[A-Z]|gamer|player|kid|$)`, 'i');
+    if (surnameRegex.test(clean) || normalized.startsWith(surname)) {
+      return {
+        isValid: false,
+        message: 'Dica de herói: invente um apelido de fantasia em vez de usar seu sobrenome real!',
+      };
     }
   }
-  if (surnameMatches >= 2 || (tokens.length >= 3 && surnameMatches >= 1)) {
-    return {
-      isValid: false,
-      message: 'Dica de herói: invente um apelido de game divertido em vez de usar seu nome completo!',
-    };
-  }
 
-  // 5. Filtro de palavras inapropriadas
+  // 5. Filtro de palavras inapropriadas (com e sem acento)
   for (const bad of BLOCKED_WORDS) {
-    if (lower.includes(bad)) {
+    if (normalized.includes(bad)) {
       return {
         isValid: false,
         message: 'Esse apelido tem palavras não permitidas. Escolha um nome amigável e heróico!',
