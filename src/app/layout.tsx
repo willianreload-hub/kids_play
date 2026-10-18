@@ -5,6 +5,7 @@ import { Navbar } from '../components/Navbar';
 import { PetCompanion } from '../components/PetCompanion';
 import { ParticleTrail } from '../components/ParticleTrail';
 import { PwaRegister } from '../components/PwaRegister';
+import { CustomCursor } from '../components/CustomCursor';
 
 export const metadata: Metadata = {
   title: 'Kids-Player | Reforço Escolar Gamificado para 3º e 4º ano',
@@ -53,6 +54,7 @@ export default function RootLayout({
             <PetCompanion />
             <ParticleTrail />
             <PwaRegister />
+            <CustomCursor />
           </div>
         </AuthProvider>
       </body>

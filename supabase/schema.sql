@@ -269,7 +269,10 @@ CREATE TABLE IF NOT EXISTS public.achievements (
     title VARCHAR(100) NOT NULL,
     description TEXT NOT NULL,
     badge_icon VARCHAR(50) NOT NULL,
-    reward_points INT NOT NULL DEFAULT 100
+    category VARCHAR(30) NOT NULL DEFAULT 'estudo',
+    reward_points INT NOT NULL DEFAULT 100,
+    reward_xp INT NOT NULL DEFAULT 50,
+    max_progress INT NOT NULL DEFAULT 1
 );
 
 CREATE TABLE IF NOT EXISTS public.user_achievements (
@@ -590,23 +593,76 @@ INSERT INTO public.subjects (id, name, description, icon, color_theme, order_ind
     ('digitacao', 'Mestre do Teclado', 'Aprenda a digitar rápido feito um herói das teclas!', 'keyboard', 'kids-orange', 6)
 ON CONFLICT (id) DO NOTHING;
 
--- Catálogo de PETs Iniciais Originais (Pixel Art)
+-- Catálogo de PETs Originais (Total: 15 Companheiros em Pixel Art)
 INSERT INTO public.pets (id, name, species, rarity, description, sprite_key, base_power) VALUES
     ('pipoca_raposa', 'Pipoca', 'Raposinha Curiosa', 'normal', 'Uma raposinha esperta que ama resolver enigmas de matemática.', 'pet_fox', 15),
     ('bolha_slime', 'Bolha', 'Slime Sorridente', 'normal', 'Um bichinho gelatinoso e super fofo que adora ler historinhas.', 'pet_slime', 12),
+    ('gota_tartaruga', 'Gota d''Água', 'Tartaruguinha dos Mares', 'normal', 'Uma tartaruguinha calma e paciente que ensina a ler cada enunciado com atenção!', 'pet_turtle', 16),
     ('corujinha_pixel', 'Sabichão', 'Coruja dos Livros', 'raro', 'Sempre alerta com conselhos sábios e ótimas dicas de português.', 'pet_owl', 28),
+    ('trovao_guepardo', 'Trovãozinho', 'Guepardo Elétrico', 'raro', 'Um felino veloz com faíscas azuis que acelera suas respostas em contas rápidas!', 'pet_cheetah', 38),
+    ('glub_polvo', 'Glub', 'Polvo dos Oceanos Mágicos', 'raro', 'Um polvinho fofo que solta tinta estelar para revelar pistas em perguntas desafiadoras!', 'pet_octopus', 36),
     ('raio_dragao', 'Faísca', 'Dragãozinho Alado', 'epico', 'Cospe faíscas de energia quando você bate recordes de velocidade!', 'pet_dragon', 45),
+    ('lupin_lobo', 'Lupin', 'Lobinho das Neves', 'epico', 'Um lobinho leal de pelagem azulada que ajuda a farejar pistas e detalhes em Português!', 'pet_wolf', 52),
+    ('atena_coruja', 'Atena', 'Coruja Guardiã dos Livros', 'epico', 'Uma coruja nobre com olhos reluzentes que ensina estratégias de leitura atenta e interpretação!', 'pet_owl', 58),
     ('astro_gatinho', 'Cósmico', 'Gatinho Astronauta', 'lendario', 'Veio das estrelas para iluminar suas maiores descobertas.', 'pet_cat', 70),
-    ('fenix_dourada', 'Solzinho', 'Pássaro do Alvorecer', 'mitico', 'Uma criatura lendária cintilante que irradia sabedoria máxima!', 'pet_phoenix', 120)
-ON CONFLICT (id) DO NOTHING;
+    ('estelar_unicornio', 'Estelar', 'Unicórnio Cósmico', 'lendario', 'Uma criatura mágica com crina estelar que concede bônus de XP em todas as matérias!', 'pet_unicorn', 85),
+    ('ignis_dragao', 'Ignis', 'Mini Dragão Cósmico', 'lendario', 'Um dragãozinho brincalhão com bafo de faíscas que incendeia seu entusiasmo em Matemática!', 'pet_dragon', 95),
+    ('fenix_dourada', 'Solzinho', 'Pássaro do Alvorecer', 'mitico', 'Uma criatura lendária cintilante que irradia sabedoria máxima!', 'pet_phoenix', 120),
+    ('tita_cristal', 'Titã de Cristal', 'Golem Antigo da Terra', 'mitico', 'Um ser ancestral esculpido em cristal brilhante que protege sua constância de estudos!', 'pet_golem', 135),
+    ('flora_preguica', 'Flora', 'Preguiça Mística Zen', 'mitico', 'Mestre da calma e respiração, garante concentração máxima no Modo Foco e dobra o afeto diário!', 'pet_sloth', 140)
+ON CONFLICT (id) DO UPDATE SET
+    name = EXCLUDED.name,
+    species = EXCLUDED.species,
+    rarity = EXCLUDED.rarity,
+    description = EXCLUDED.description,
+    sprite_key = EXCLUDED.sprite_key,
+    base_power = EXCLUDED.base_power;
 
--- Acessórios Iniciais
+-- Catálogo de Acessórios (Total: 16 Itens em Pixel Art)
 INSERT INTO public.accessories (id, name, accessory_type, rarity, price_points, sprite_key) VALUES
-    ('chapeu_formatura', 'Chapéu de Formatura', 'chapeu', 'normal', 150, 'acc_hat_grad'),
+    ('chapeu_formatura', 'Capelo de Formatura', 'chapeu', 'normal', 150, 'acc_hat_grad'),
+    ('boina_artista', 'Boina Criativa', 'chapeu', 'normal', 180, 'acc_beret'),
+    ('cachecol_inverno', 'Cachecol de Lã das Montanhas', 'capa', 'normal', 220, 'acc_scarf'),
     ('oculos_detetive', 'Óculos de Detetive', 'oculos', 'raro', 300, 'acc_glasses_detective'),
+    ('oculos_sol_pixel', 'Óculos Sol Retrô', 'oculos', 'raro', 350, 'acc_sunglasses'),
+    ('oculos_vr', 'Óculos VR Futurista', 'oculos', 'raro', 400, 'acc_vr_glasses'),
+    ('monoculo_retro', 'Monóculo Steampunk Dourado', 'oculos', 'raro', 400, 'acc_monocle'),
     ('capa_estelar', 'Capa de Super Herói', 'capa', 'epico', 600, 'acc_cape_hero'),
-    ('coroa_ouro_pixel', 'Coroa Imperial Pixel', 'chapeu', 'mitico', 2500, 'acc_crown_gold')
-ON CONFLICT (id) DO NOTHING;
+    ('tiara_louros', 'Tiara de Louros dos Filósofos', 'chapeu', 'epico', 750, 'acc_laurel_crown'),
+    ('manto_nebulosa', 'Manto Estelar de Nebulosa', 'capa', 'epico', 850, 'acc_nebula_cloak'),
+    ('asas_borboleta', 'Asas de Borboleta Mágica', 'capa', 'epico', 900, 'acc_fairy_wings'),
+    ('aura_estrelar', 'Aura de Estrelas', 'efeito', 'lendario', 1200, 'acc_aura_stars'),
+    ('coroa_dragao', 'Coroa do Dragão Místico', 'chapeu', 'lendario', 1500, 'acc_crown_dragon'),
+    ('aura_cristais', 'Aura de Cristais Orbitais', 'efeito', 'mitico', 2200, 'acc_orbital_crystals'),
+    ('coroa_ouro_pixel', 'Coroa Imperial dos Campeões', 'chapeu', 'mitico', 2500, 'acc_crown_gold'),
+    ('fogo_fatuo', 'Aura de Fogo Fátuo Cósmico', 'efeito', 'mitico', 2800, 'acc_cosmic_flame')
+ON CONFLICT (id) DO UPDATE SET
+    name = EXCLUDED.name,
+    accessory_type = EXCLUDED.accessory_type,
+    rarity = EXCLUDED.rarity,
+    price_points = EXCLUDED.price_points,
+    sprite_key = EXCLUDED.sprite_key;
+
+-- Conquistas do Herói (Sala de Troféus 2.0)
+INSERT INTO public.achievements (id, title, description, badge_icon, category, reward_points, reward_xp, max_progress) VALUES
+    ('ach_first_win', 'Primeiro Passo do Campeão', 'Conclua seu primeiro exercício com sucesso em qualquer matéria.', '🎯', 'estudo', 50, 40, 1),
+    ('ach_biomes_master', 'Guardião dos Biomas', 'Explore ecossistemas brasileiros e conquiste insígnias de proteção à natureza.', '🧭', 'jogos', 120, 90, 9),
+    ('ach_space_combo', 'Piloto Galáctico x5', 'Ative o multiplicador Super Nova x5 na Corrida Espacial da Tabuada.', '🚀', 'jogos', 80, 70, 5),
+    ('ach_pet_love', 'Melhor Amigo Mágico', 'Alcance 100% de carinho e amizade com qualquer companheiro PET.', '💖', 'pets', 100, 85, 100),
+    ('ach_streak_3', 'Fogo do Saber (3 Dias)', 'Estude por 3 dias seguidos sem quebrar sua sequência diária!', '🔥', 'habito', 90, 60, 3),
+    ('ach_math_whiz', 'Gênio da Matemática', 'Acerte 10 blocos de operações matemáticas sem errar.', '🧮', 'estudo', 100, 80, 10),
+    ('ach_reader', 'Mestre da Leitura', 'Complete 5 desafios de interpretação e ortografia em Língua Portuguesa.', '📖', 'estudo', 80, 75, 5),
+    ('ach_collector', 'Colecionador de PETs', 'Choque ovos no Baú Surpresa e colecione 4 companheiros mágicos diferentes.', '🎁', 'pets', 150, 100, 4),
+    ('ach_polyglot', 'Voz do Mundo', 'Fale 5 palavras com pronúncia perfeita no microfone na Ilha de Inglês.', '🗣️', 'jogos', 70, 60, 5),
+    ('ach_season_pass_10', 'Passe de Elite (Nível 10)', 'Alcance o nível 10 no Passe da Sabedoria e resgate o Óculos VR Futurista.', '👑', 'estudo', 200, 150, 10)
+ON CONFLICT (id) DO UPDATE SET
+    title = EXCLUDED.title,
+    description = EXCLUDED.description,
+    badge_icon = EXCLUDED.badge_icon,
+    category = EXCLUDED.category,
+    reward_points = EXCLUDED.reward_points,
+    reward_xp = EXCLUDED.reward_xp,
+    max_progress = EXCLUDED.max_progress;
 
 -- Quests Diárias Iniciais
 INSERT INTO public.quests (title, description, category, reward_points, reward_xp, target_count, quest_key) VALUES
@@ -616,18 +672,75 @@ INSERT INTO public.quests (title, description, category, reward_points, reward_x
     ('Corrida da Tabuada', 'Vença uma corrida no modo velocidade sem errar nenhuma conta.', 'diaria', 80, 60, 1, 'corrida_tabuada')
 ON CONFLICT DO NOTHING;
 
--- Unidades BNCC Iniciais (Matemática e Português)
+-- Unidades BNCC Iniciais (Matemática, Português, Ciências, História e Geografia)
 INSERT INTO public.units (id, subject_id, grade, title, description, order_index) VALUES
-    ('00000000-0000-0000-0000-000000000001', 'matematica', 3, 'Números e Operações Divertidas', 'Adição, subtração e primeiras tabuadas', 1),
-    ('00000000-0000-0000-0000-000000000002', 'matematica', 4, 'Multiplicação e Frações Mágicas', 'Tabuadas avançadas, divisão e noções de frações', 1),
-    ('00000000-0000-0000-0000-000000000003', 'portugues', 3, 'Ortografia e Sílabas Fantásticas', 'Regras de S/SS, R/RR e M antes de P e B', 1),
-    ('00000000-0000-0000-0000-000000000004', 'portugues', 4, 'Mestres da Leitura e Pontuação', 'Uso do C/Ç, adjetivos e pontuação expressiva', 1)
-ON CONFLICT DO NOTHING;
+    ('00000000-0000-0000-0000-000000000001', 'matematica', 3, 'Números, Operações e Sistema Monetário', 'Adição, subtração, troco e primeiras tabuadas', 1),
+    ('00000000-0000-0000-0000-000000000002', 'matematica', 4, 'Multiplicação, Divisão, Frações e Medidas', 'Tabuadas avançadas, frações visuais, quilos e litros', 1),
+    ('00000000-0000-0000-0000-000000000003', 'portugues', 3, 'Ortografia, Sílabas e Rimas', 'Regras de S/SS, R/RR e M antes de P e B', 1),
+    ('00000000-0000-0000-0000-000000000004', 'portugues', 4, 'Mestres da Leitura e Pontuação Expressiva', 'Uso do C/Ç, adjetivos, travessão e exclamação', 1),
+    ('00000000-0000-0000-0000-000000000005', 'ciencias', 3, 'Solo, Sustentabilidade e Vida Animal', 'Ciclos ecológicos e preservação', 1),
+    ('00000000-0000-0000-0000-000000000006', 'ciencias', 4, 'Cadeias Alimentares e Astronomia', 'Ecossistemas, decompositores e fases da lua', 1),
+    ('00000000-0000-0000-0000-000000000007', 'historia_geografia', 3, 'Comunidade, Cidades e Recursos Naturais', 'História do município e respeito à natureza', 1),
+    ('00000000-0000-0000-0000-000000000008', 'historia_geografia', 4, 'Ecossistemas e Biomas do Brasil', 'Amazônia, Caatinga, Cerrado, Pantanal, Mata Atlântica e Pampa', 1)
+ON CONFLICT (id) DO NOTHING;
 
 -- Habilidades BNCC Iniciais
 INSERT INTO public.skills (id, unit_id, bncc_code, title, description) VALUES
     ('00000000-0000-0000-0000-000000000011', '00000000-0000-0000-0000-000000000001', 'EF03MA05', 'Adição e Subtração com Recursos', 'Estratégias de cálculo com reserva e reagrupamento'),
-    ('00000000-0000-0000-0000-000000000012', '00000000-0000-0000-0000-000000000002', 'EF04MA04', 'Multiplicação e Divisão', 'Resolução de problemas com tabuada e repartição'),
-    ('00000000-0000-0000-0000-000000000013', '00000000-0000-0000-0000-000000000003', 'EF03LP01', 'Correspondências Fonema-Grafema', 'Identificação e escrita de palavras com S/SS e R/RR'),
-    ('00000000-0000-0000-0000-000000000014', '00000000-0000-0000-0000-000000000004', 'EF04LP01', 'Grafia Correta com C e Ç', 'Construção do sistema alfabético e ortografia')
+    ('00000000-0000-0000-0000-000000000012', '00000000-0000-0000-0000-000000000001', 'EF03MA10', 'Sistema Monetário Brasileiro', 'Troco e problemas com cédulas e moedas'),
+    ('00000000-0000-0000-0000-000000000013', '00000000-0000-0000-0000-000000000002', 'EF04MA04', 'Multiplicação e Divisão', 'Resolução de problemas com tabuada e repartição'),
+    ('00000000-0000-0000-0000-000000000014', '00000000-0000-0000-0000-000000000002', 'EF04MA09', 'Frações Unitárias e Visuais', 'Reconhecimento de metades, quartos e oitavos'),
+    ('00000000-0000-0000-0000-000000000015', '00000000-0000-0000-0000-000000000002', 'EF04MA20', 'Grandezas e Medidas', 'Comprimento, massa e capacidade (metro, kg, litro)'),
+    ('00000000-0000-0000-0000-000000000016', '00000000-0000-0000-0000-000000000003', 'EF03LP01', 'Correspondências Fonema-Grafema', 'Identificação e escrita com S/SS e R/RR'),
+    ('00000000-0000-0000-0000-000000000017', '00000000-0000-0000-0000-000000000004', 'EF04LP01', 'Grafia Correta com C e Ç', 'Construção do sistema alfabético e ortografia'),
+    ('00000000-0000-0000-0000-000000000018', '00000000-0000-0000-0000-000000000004', 'EF04LP06', 'Pontuação Expressiva', 'Emprego de ponto final, exclamação e interrogação'),
+    ('00000000-0000-0000-0000-000000000019', '00000000-0000-0000-0000-000000000005', 'EF03CI07', 'Solo e Sustentabilidade', 'Identificação dos usos do solo e reciclagem'),
+    ('00000000-0000-0000-0000-000000000020', '00000000-0000-0000-0000-000000000006', 'EF04CI04', 'Cadeias Alimentares', 'Relações ecológicas entre produtores e consumidores'),
+    ('00000000-0000-0000-0000-000000000021', '00000000-0000-0000-0000-000000000006', 'EF04CI11', 'Fases da Lua e Astronomia', 'Ciclos astronômicos e periodicidade lunar'),
+    ('00000000-0000-0000-0000-000000000022', '00000000-0000-0000-0000-000000000008', 'EF04GE05', 'Biomas e Ecossistemas Brasileiros', 'Caracterização da flora, fauna e relevo do Brasil')
+ON CONFLICT (id) DO NOTHING;
+
+-- Questões Iniciais Alinhadas à BNCC
+INSERT INTO public.questions (skill_id, prompt, audio_prompt_text, question_type, options, correct_answer, explanation, difficulty) VALUES
+    (
+        '00000000-0000-0000-0000-000000000014',
+        'O dragãozinho comeu 2 fatias de uma torta que foi dividida em 4 pedaços iguais. Que fração da torta ele comeu?',
+        'O dragãozinho comeu duas fatias de uma torta dividida em quatro pedaços iguais. Que fração da torta ele comeu?',
+        'multiple_choice',
+        '["1/4", "2/4 (a metade)", "3/4", "4/4"]'::jsonb,
+        '2/4 (a metade)',
+        'Muito bem! 2 pedaços de 4 é representado por 2/4, que é a metade da torta!',
+        1
+    ),
+    (
+        '00000000-0000-0000-0000-000000000015',
+        'O caldeirão precisa de 1 LITRO de água da cachoeira. Se já despejou 600 mL, quantos mL ainda faltam?',
+        'O caldeirão precisa de um litro de água. Se você já despejou 600 mililitros, quantos mililitros faltam?',
+        'multiple_choice',
+        '["200 mL", "400 mL", "500 mL", "600 mL"]'::jsonb,
+        '400 mL',
+        'Exato! 1 Litro = 1000 mL. Faltam 1000 - 600 = 400 mL para a poção!',
+        1
+    ),
+    (
+        '00000000-0000-0000-0000-000000000022',
+        'Qual é o maior bioma do Brasil, conhecido como o berço da maior bacia hidrográfica e floresta tropical do planeta?',
+        'Qual é o maior bioma do Brasil, conhecido pela floresta tropical e pelo Rio Amazonas?',
+        'multiple_choice',
+        '["Cerrado", "Caatinga", "Amazônia", "Pampa"]'::jsonb,
+        'Amazônia',
+        'Correto! A Amazônia ocupa cerca de 49% do território brasileiro e abriga milhares de espécies!',
+        1
+    ),
+    (
+        '00000000-0000-0000-0000-000000000012',
+        'Você comprou um lápis por R$ 3,00 e pagou com uma nota de R$ 5,00. Quanto deve receber de troco?',
+        'Você comprou um lápis por três reais e pagou com uma nota de cinco reais. Quanto deve receber de troco?',
+        'multiple_choice',
+        '["R$ 1,00", "R$ 2,00", "R$ 3,00", "R$ 4,00"]'::jsonb,
+        'R$ 2,00',
+        'Perfeito! 5 menos 3 é igual a 2 reais de troco!',
+        1
+    )
 ON CONFLICT DO NOTHING;
+

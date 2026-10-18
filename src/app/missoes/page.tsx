@@ -3,24 +3,35 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../../lib/auth-context';
+import { ACHIEVEMENTS_CATALOG } from '../../lib/content-data';
+import { AchievementItem } from '../../lib/types';
 import { PixelButton } from '../../components/PixelButton';
 import { sounds } from '../../lib/sound-effects';
 import { 
   Target, Flame, Gift, Trophy, CheckCircle, Clock, 
-  Sparkles, Shield, ArrowRight, Star, Award 
+  Sparkles, Shield, ArrowRight, Star, Award, CheckCircle2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export default function MissoesPage() {
-  const { profile, quests, claimQuestReward, streakBonusPercent, focusMode } = useAuth();
+  const { profile, quests, claimQuestReward, streakBonusPercent, focusMode, addPoints } = useAuth();
   const [claimedNotice, setClaimedNotice] = useState<string | null>(null);
+
+  // Conquistas sincronizadas com a Sala de Troféus
+  const [claimedAchievements, setClaimedAchievements] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('kids_player_claimed_achievements');
+      return saved ? JSON.parse(saved) : ['ach_first_win'];
+    }
+    return ['ach_first_win'];
+  });
 
   // Missões Semanais da Unidade (Grandes Metas)
   const [weeklyMissions, setWeeklyMissions] = useState([
     {
       id: 'wm1',
       title: 'Explorador da Semana',
-      desc: 'Complete 10 partidas de minijogos (Matemática ou Português)',
+      desc: 'Complete 10 partidas de minijogos (Matemática, Português ou Ciências)',
       target: 10,
       current: 4,
       rewardPoints: 300,
@@ -40,15 +51,6 @@ export default function MissoesPage() {
       isClaimed: false,
     },
   ]);
-
-  const achievements = [
-    { id: 'first_win', title: 'Primeiro Passo', desc: 'Completou a primeira lição de reforço', icon: '🌱', unlocked: true },
-    { id: 'math_hero', title: 'Mestre da Mina', desc: 'Minerou 10 blocos na matemática', icon: '⛏️', unlocked: true },
-    { id: 'reader_star', title: 'Guardião das Palavras', desc: 'Destrancou pontes mágicas no português', icon: '🌉', unlocked: true },
-    { id: 'streak_7', title: 'Chama Eterna', desc: 'Manteve 7 dias seguidos de reforço', icon: '🔥', unlocked: (profile?.streak_days || 1) >= 7 },
-    { id: 'lootbox_lucky', title: 'Amigo dos PETs', desc: 'Chocou um companheiro no Baú Surpresa', icon: '🎁', unlocked: true },
-    { id: 'crown_ready', title: 'Rumo ao Trono', desc: 'Conquistou mais de 500 pontos no total', icon: '👑', unlocked: (profile?.points || 0) >= 500 },
-  ];
 
   const handleClaim = (questId: string, questTitle: string) => {
     sounds.playLevelUp();
@@ -300,41 +302,114 @@ export default function MissoesPage() {
       </div>
 
       {/* ============================================================== */}
-      {/* SEÇÃO 3: CONQUISTAS E MEDALHAS DA JORNADA */}
+      {/* SEÇÃO 3: CONQUISTAS E MEDALHAS DA JORNADA (SALA DE TROFÉUS) */}
       {/* ============================================================== */}
-      <div className="pixel-box bg-slate-900/90 p-6">
-        <h2 className="font-pixel text-xs sm:text-sm text-yellow-300 mb-4 flex items-center gap-2">
-          <Trophy size={16} />
-          CONQUISTAS E MEDALHAS DO HERÓI
-        </h2>
+      <div className="pixel-box bg-slate-900/90 p-6 border-amber-400/80 shadow-xl">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6 border-b border-slate-800 pb-4">
+          <div>
+            <h2 className="font-pixel text-xs sm:text-sm text-yellow-300 flex items-center gap-2">
+              <Trophy size={16} className="text-amber-400" />
+              SALA DE TROFÉUS & CONQUISTAS (10 MARCOS)
+            </h2>
+            <p className="text-xs text-slate-300 mt-0.5">
+              Conclua marcos importantes nos estudos e resgate moedas e recompensas!
+            </p>
+          </div>
+          <Link href="/perfil">
+            <PixelButton variant="primary" size="sm">
+              VER SALA COMPLETA NO PERFIL 🏆
+            </PixelButton>
+          </Link>
+        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
-          {achievements.map(ach => (
-            <div
-              key={ach.id}
-              className={`p-3.5 rounded-xl border-2 flex items-center gap-3 transition-all ${
-                ach.unlocked
-                  ? 'bg-amber-950/40 border-amber-500/80 shadow-sm'
-                  : 'bg-slate-950/70 border-slate-800 opacity-50'
-              }`}
-            >
-              <span className="text-3xl shrink-0">{ach.icon}</span>
-              <div>
-                <h4 className="font-pixel text-[11px] text-white leading-tight mb-0.5">
-                  {ach.title}
-                </h4>
-                <p className="text-[10px] text-slate-300 leading-snug">
-                  {ach.desc}
-                </p>
-                <span className="text-[9px] font-bold text-amber-400 mt-1 block">
-                  {ach.unlocked ? 'Desbloqueado! 🏅' : 'Bloqueado'}
-                </span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {ACHIEVEMENTS_CATALOG.map(ach => {
+            const isClaimed = claimedAchievements.includes(ach.id);
+            const isReadyToClaim = !isClaimed && ach.progress >= ach.max_progress;
+            const percent = Math.min(100, Math.round((ach.progress / ach.max_progress) * 100));
+
+            return (
+              <div
+                key={ach.id}
+                className={`pixel-box p-4 flex flex-col justify-between transition-all ${
+                  isClaimed
+                    ? 'bg-slate-950/70 border-slate-800 opacity-70'
+                    : isReadyToClaim
+                    ? 'bg-gradient-to-b from-amber-950/80 to-slate-900 border-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.3)]'
+                    : 'bg-slate-900 border-slate-700'
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-3xl">{ach.icon}</span>
+                    <span className="font-pixel text-[9px] uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-300">
+                      {ach.category}
+                    </span>
+                  </div>
+
+                  <h4 className="font-pixel text-xs text-white mb-1">{ach.title}</h4>
+                  <p className="text-[11px] text-slate-300 leading-relaxed mb-3">{ach.description}</p>
+
+                  {/* Barra de Progresso */}
+                  <div className="mb-3">
+                    <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 mb-1">
+                      <span>Progresso:</span>
+                      <span className="font-pixel text-amber-300">
+                        {Math.min(ach.progress, ach.max_progress)} / {ach.max_progress}
+                      </span>
+                    </div>
+                    <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                      <div
+                        className="h-full bg-gradient-to-r from-amber-500 to-yellow-300 transition-all duration-300"
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  {isClaimed ? (
+                    <button
+                      type="button"
+                      disabled
+                      className="w-full py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-[11px] font-bold text-slate-500 flex items-center justify-center gap-1 cursor-not-allowed"
+                    >
+                      <CheckCircle2 size={13} className="text-emerald-500" />
+                      Conquistado ✅
+                    </button>
+                  ) : isReadyToClaim ? (
+                    <PixelButton
+                      variant="warning"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => {
+                        sounds.playLevelUp();
+                        addPoints(ach.reward_coins, `conquista_${ach.id}`);
+                        const nextClaimed = [...claimedAchievements, ach.id];
+                        setClaimedAchievements(nextClaimed);
+                        if (typeof window !== 'undefined') {
+                          localStorage.setItem('kids_player_claimed_achievements', JSON.stringify(nextClaimed));
+                        }
+                        setClaimedNotice(`Conquista "${ach.title}" resgatada! +${ach.reward_coins} Moedas!`);
+                        confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
+                        setTimeout(() => setClaimedNotice(null), 3500);
+                      }}
+                    >
+                      RESGATAR (+{ach.reward_coins} 🪙)
+                    </PixelButton>
+                  ) : (
+                    <span className="block text-center text-[10px] text-slate-500 font-bold py-1">
+                      Recompensa: +{ach.reward_coins} 🪙 (+{ach.reward_xp} XP)
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
     </div>
   );
 }
+

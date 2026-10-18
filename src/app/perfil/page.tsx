@@ -1,15 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../lib/auth-context';
-import { AVATAR_PRESETS, PET_CATALOG } from '../../lib/content-data';
+import { AVATAR_PRESETS, PET_CATALOG, ACHIEVEMENTS_CATALOG } from '../../lib/content-data';
 import { PixelButton } from '../../components/PixelButton';
 import { PetIcon } from '../../components/PetIcon';
 import { sounds } from '../../lib/sound-effects';
 import { validateNickname } from '../../lib/nickname-moderator';
 import { 
   User, Shield, Coins, Flame, Award, Heart, 
-  Settings, LogOut, Check, Sparkles, Volume2 
+  Settings, LogOut, Check, Sparkles, Volume2,
+  Trophy, CheckCircle2, Gift, Dices
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -22,13 +23,85 @@ export default function PerfilPage() {
     updateProfile, 
     updateFocusSettings, 
     toggleFocusMode, 
-    logout 
+    logout,
+    addPoints 
   } = useAuth();
 
   const [isEditingNick, setIsEditingNick] = useState(false);
   const [newNick, setNewNick] = useState(profile?.nickname || '');
   const [nickError, setNickError] = useState('');
+  const [selectedCursor, setSelectedCursor] = useState<string>('varinha');
   const [savedSuccess, setSavedSuccess] = useState(false);
+
+  // Conquistas e Roleta Diária
+  const [claimedAchievements, setClaimedAchievements] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('kids_player_claimed_achievements');
+      return saved ? JSON.parse(saved) : ['ach_first_win'];
+    }
+    return ['ach_first_win'];
+  });
+
+  const [hasSpunToday, setHasSpunToday] = useState(false);
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [spinReward, setSpinReward] = useState<number | null>(null);
+  const [achFilter, setAchFilter] = useState<string>('todos');
+
+  // Verificar se já girou a roleta hoje
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const today = new Date().toISOString().slice(0, 10);
+      const lastSpin = localStorage.getItem('kids_player_last_spin_date');
+      if (lastSpin === today) {
+        setHasSpunToday(true);
+      }
+    }
+  }, []);
+
+  const handleSpinWheel = () => {
+    if (hasSpunToday || isSpinning) return;
+    setIsSpinning(true);
+    sounds.playClick();
+
+    setTimeout(() => {
+      const rewards = [25, 40, 50, 60, 80, 100];
+      const won = rewards[Math.floor(Math.random() * rewards.length)];
+      setSpinReward(won);
+      setIsSpinning(false);
+      setHasSpunToday(true);
+      addPoints(won, 'roleta_diaria_sabedoria');
+      sounds.playCoin();
+      sounds.playLevelUp();
+
+      if (typeof window !== 'undefined') {
+        const today = new Date().toISOString().slice(0, 10);
+        localStorage.setItem('kids_player_last_spin_date', today);
+      }
+
+      confetti({
+        particleCount: 50,
+        spread: 70,
+        origin: { y: 0.6 },
+      });
+    }, 1000);
+  };
+
+  const handleClaimAchievement = (achId: string, coins: number) => {
+    if (claimedAchievements.includes(achId)) return;
+    sounds.playLevelUp();
+    addPoints(coins, `conquista_${achId}`);
+    const nextClaimed = [...claimedAchievements, achId];
+    setClaimedAchievements(nextClaimed);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('kids_player_claimed_achievements', JSON.stringify(nextClaimed));
+    }
+
+    confetti({
+      particleCount: 40,
+      spread: 60,
+      origin: { y: 0.7 },
+    });
+  };
 
   // Avatar selecionado
   const currentAvatar = AVATAR_PRESETS.find(a => a.id === profile?.avatar_preset) || AVATAR_PRESETS[0];
@@ -52,6 +125,25 @@ export default function PerfilPage() {
   const handleSelectAvatar = (presetId: string) => {
     sounds.playClick();
     updateProfile({ avatar_preset: presetId });
+    setSavedSuccess(true);
+    setTimeout(() => setSavedSuccess(false), 2000);
+  };
+
+  // Inicializa cursor do localStorage
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('kids_cursor_theme');
+      if (saved) setSelectedCursor(saved);
+    }
+  }, []);
+
+  const handleSelectCursor = (themeId: string) => {
+    sounds.playClick();
+    setSelectedCursor(themeId);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('kids_cursor_theme', themeId);
+      window.dispatchEvent(new CustomEvent('change_cursor_theme', { detail: themeId }));
+    }
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 2000);
   };
@@ -152,6 +244,105 @@ export default function PerfilPage() {
         </div>
       </div>
 
+      {/* ============================================================== */}
+      {/* GAMIFICAÇÃO: FOGO DA SEQUÊNCIA (STREAK) & ROLETA DIÁRIA */}
+      {/* ============================================================== */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        
+        {/* Fogo da Sequência Semanal */}
+        <div className="pixel-box bg-gradient-to-r from-orange-950/80 via-slate-900 to-amber-950/80 p-5 border-orange-500 shadow-lg flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="font-pixel text-xs text-orange-400 flex items-center gap-1.5">
+                <Flame size={16} className="text-orange-400 fill-orange-500 animate-pulse" />
+                FOGO DO SABER (STREAK DIÁRIO)
+              </span>
+              <span className="font-pixel text-[10px] bg-orange-950 text-orange-300 border border-orange-600 px-2 py-0.5 rounded">
+                {profile?.streak_days || 1} Dias Seguidos!
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-300 mb-4">
+              Estudar um pouquinho todo dia mantém sua mente ágil! A cada dia consecutivo, você ganha <strong>+10% de XP Bônus</strong> em todas as matérias!
+            </p>
+
+            {/* Marcadores dos 7 dias da semana */}
+            <div className="grid grid-cols-7 gap-2 mb-2">
+              {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map((day, idx) => {
+                const isCurrentActive = idx < (profile?.streak_days || 1) % 7 || (profile?.streak_days || 1) >= 7;
+                return (
+                  <div
+                    key={day}
+                    className={`p-2 rounded-xl border flex flex-col items-center text-center transition-all ${
+                      isCurrentActive
+                        ? 'bg-orange-950/80 border-orange-400 text-orange-200 shadow-md'
+                        : 'bg-slate-950/80 border-slate-800 text-slate-500'
+                    }`}
+                  >
+                    <span className="text-xs mb-0.5">{isCurrentActive ? '🔥' : '⚪'}</span>
+                    <span className="font-pixel text-[9px]">{day}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="text-[11px] text-amber-300 font-bold bg-slate-950/80 p-2 rounded-lg border border-slate-800 text-center mt-3">
+            ✨ Multiplicador Ativo: +10% de XP por Conexão Diária!
+          </div>
+        </div>
+
+        {/* Roleta da Sabedoria Diária (1 Giro Grátis Todo Dia) */}
+        <div className="pixel-box bg-gradient-to-r from-purple-950/80 via-slate-900 to-indigo-950/80 p-5 border-purple-400 shadow-lg flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="font-pixel text-xs text-purple-300 flex items-center gap-1.5">
+                <Gift size={16} className="text-amber-400" />
+                ROLETA DA SABEDORIA (1X AO DIA)
+              </span>
+              <span className="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-500 px-2 py-0.5 rounded-full font-bold">
+                100% Gratuito
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-300 mb-4">
+              Gire o Baú Diário da Sabedoria para ganhar moedas de estudos grátis para usar na compra de acessórios e frutinhas para o seu PET!
+            </p>
+
+            <div className="flex items-center justify-center py-2">
+              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 to-purple-600 border-4 border-amber-300 flex items-center justify-center text-3xl shadow-lg ${
+                isSpinning ? 'animate-spin' : 'animate-bounce-subtle'
+              }`}>
+                🎁
+              </div>
+            </div>
+
+            {spinReward && (
+              <p className="text-center font-pixel text-xs text-amber-300 my-2">
+                🎉 VOCÊ GANHOU +{spinReward} MOEDAS!
+              </p>
+            )}
+          </div>
+
+          <div className="pt-3">
+            <PixelButton
+              variant={hasSpunToday ? 'dark' : 'warning'}
+              size="sm"
+              className="w-full"
+              disabled={hasSpunToday || isSpinning}
+              onClick={handleSpinWheel}
+            >
+              {isSpinning
+                ? 'GIRANDO O BAÚ...'
+                : hasSpunToday
+                ? 'JÁ RESGATADO HOJE! VOLTE AMANHÃ ✔'
+                : 'ABRIR RECOMPENSA DIÁRIA 🎁'}
+            </PixelButton>
+          </div>
+        </div>
+
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         
         {/* Escolha de Avatar */}
@@ -212,6 +403,155 @@ export default function PerfilPage() {
           >
             VER COLEÇÃO COMPLETA DE PETS 🐾
           </PixelButton>
+        </div>
+      </div>
+
+      {/* SELETOR DE PONTEIRO DO MOUSE MÁGICO RETRÔ (SPRINT 2.1) */}
+      <div className="pixel-box bg-slate-900/90 p-5 mb-8 border-indigo-400">
+        <h3 className="font-pixel text-xs text-amber-300 mb-2 flex items-center gap-2">
+          <Sparkles size={16} className="text-yellow-400" />
+          PONTEIRO DO MOUSE MÁGICO (EFEITOS RETRÔ)
+        </h3>
+        <p className="text-xs text-slate-300 mb-4">
+          Escolha como o ponteiro do seu mouse se transforma na tela com faíscas mágicas e cliques táteis:
+        </p>
+
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          {[
+            { id: 'varinha', name: 'Varinha Estelar', icon: '🪄', desc: 'Solta faíscas douradas' },
+            { id: 'picareta', name: 'Picareta Pixel', icon: '⛏️', desc: 'Gira no clique tátil' },
+            { id: 'patinha', name: 'Patinha de Pet', icon: '🐾', desc: 'Deixa pegadas fofas' },
+            { id: 'foguete', name: 'Mini Foguete', icon: '🚀', desc: 'Propulsão estelar' },
+            { id: 'padrao', name: 'Cursor Normal', icon: '🏹', desc: 'Padrão do navegador' },
+          ].map(c => (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => handleSelectCursor(c.id)}
+              className={`p-3 rounded-xl border-2 flex flex-col items-center text-center transition-all ${
+                selectedCursor === c.id
+                  ? 'bg-amber-400/20 border-amber-400 scale-105 shadow-[0_0_12px_rgba(251,191,36,0.4)]'
+                  : 'bg-slate-800 border-slate-700 hover:border-slate-500 hover:bg-slate-750'
+              }`}
+            >
+              <span className="text-3xl mb-1">{c.icon}</span>
+              <span className="font-pixel text-[11px] text-white block">{c.name}</span>
+              <span className="text-[10px] text-slate-400 mt-0.5">{c.desc}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ============================================================== */}
+      {/* SALA DE TROFÉUS & CONQUISTAS 2.0 (GAMIFICAÇÃO DE METAS) */}
+      {/* ============================================================== */}
+      <div className="pixel-box bg-slate-900/90 p-6 mb-8 border-amber-400 shadow-xl">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 border-b border-slate-800 pb-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Trophy className="text-amber-400 w-5 h-5" />
+              <h3 className="font-pixel text-xs sm:text-sm text-amber-300">
+                SALA DE TROFÉUS & CONQUISTAS
+              </h3>
+            </div>
+            <p className="text-xs text-slate-300">
+              Conclua marcos importantes nos estudos e resgate moedas e recompensas exclusivas!
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-pixel text-[10px] text-slate-400">Filtrar:</span>
+            {['todos', 'estudo', 'jogos', 'pets', 'habito'].map(cat => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setAchFilter(cat)}
+                className={`font-pixel text-[10px] px-2.5 py-1 rounded-lg uppercase transition-all ${
+                  achFilter === cat
+                    ? 'bg-amber-400 text-slate-950 font-bold shadow'
+                    : 'bg-slate-800 text-slate-400 hover:text-white'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {ACHIEVEMENTS_CATALOG
+            .filter(a => achFilter === 'todos' || a.category === achFilter)
+            .map(ach => {
+              const isClaimed = claimedAchievements.includes(ach.id);
+              const isReadyToClaim = !isClaimed && ach.progress >= ach.max_progress;
+
+              return (
+                <div
+                  key={ach.id}
+                  className={`pixel-box p-4 flex flex-col justify-between transition-all ${
+                    isClaimed
+                      ? 'bg-slate-950/70 border-slate-800 opacity-70'
+                      : isReadyToClaim
+                      ? 'bg-gradient-to-b from-amber-950/80 to-slate-900 border-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.3)]'
+                      : 'bg-slate-900 border-slate-700'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-3xl">{ach.icon}</span>
+                      <span className="font-pixel text-[9px] uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-300">
+                        {ach.category}
+                      </span>
+                    </div>
+
+                    <h4 className="font-pixel text-xs text-white mb-1">{ach.title}</h4>
+                    <p className="text-[11px] text-slate-300 leading-relaxed mb-3">{ach.description}</p>
+
+                    {/* Barra de Progresso da Conquista */}
+                    <div className="mb-3">
+                      <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 mb-1">
+                        <span>Progresso:</span>
+                        <span className="font-pixel text-amber-300">
+                          {Math.min(ach.progress, ach.max_progress)} / {ach.max_progress}
+                        </span>
+                      </div>
+                      <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                        <div
+                          className="h-full bg-gradient-to-r from-amber-500 to-yellow-300 transition-all duration-300"
+                          style={{ width: `${Math.min(100, (ach.progress / ach.max_progress) * 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    {isClaimed ? (
+                      <button
+                        type="button"
+                        disabled
+                        className="w-full py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-[11px] font-bold text-slate-500 flex items-center justify-center gap-1 cursor-not-allowed"
+                      >
+                        <CheckCircle2 size={13} className="text-emerald-500" />
+                        Conquistado
+                      </button>
+                    ) : isReadyToClaim ? (
+                      <PixelButton
+                        variant="warning"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => handleClaimAchievement(ach.id, ach.reward_coins)}
+                      >
+                        RESGATAR (+{ach.reward_coins} 🪙)
+                      </PixelButton>
+                    ) : (
+                      <span className="block text-center text-[10px] text-slate-500 font-bold py-1">
+                        Recompensa: +{ach.reward_coins} 🪙
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
         </div>
       </div>
 

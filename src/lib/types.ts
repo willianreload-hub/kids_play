@@ -150,3 +150,17 @@ export interface UserAccessory {
   is_equipped: boolean;
   accessory?: Accessory;
 }
+
+export interface AchievementItem {
+  id: string;
+  title: string;
+  description: string;
+  category: 'estudo' | 'pets' | 'jogos' | 'habito';
+  icon: string;
+  reward_coins: number;
+  reward_xp: number;
+  unlocked: boolean;
+  progress: number;
+  max_progress: number;
+}
+

@@ -217,6 +217,94 @@ class SoundFX {
       });
     } catch {}
   }
+
+  // Multiplicador de Combo (Escala musical ascendente)
+  public playCombo(comboCount: number) {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      const baseFreq = 440; // A4
+      // Sobe meio tom ou escala a cada combo
+      const semitones = Math.min(12, comboCount * 2);
+      const freq = baseFreq * Math.pow(2, semitones / 12);
+
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(freq * 1.5, this.ctx.currentTime + 0.12);
+
+      gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.18);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.18);
+    } catch {}
+  }
+
+  // Ronrom e Carinho do Pet
+  public playPetPurr() {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      const notes = [220, 277.18, 329.63, 440];
+      notes.forEach((freq, idx) => {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.05);
+
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime + idx * 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + idx * 0.05 + 0.12);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(this.ctx.currentTime + idx * 0.05);
+        osc.stop(this.ctx.currentTime + idx * 0.05 + 0.13);
+      });
+    } catch {}
+  }
+
+  // Borbulhar de Poção Mágica (Alquimia das Frações)
+  public playPotionBubble() {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      const bubbles = [350, 480, 620, 520, 700];
+      bubbles.forEach((freq, idx) => {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.04);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.3, this.ctx.currentTime + idx * 0.04 + 0.06);
+
+        gain.gain.setValueAtTime(0.09, this.ctx.currentTime + idx * 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + idx * 0.04 + 0.07);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(this.ctx.currentTime + idx * 0.04);
+        osc.stop(this.ctx.currentTime + idx * 0.04 + 0.08);
+      });
+    } catch {}
+  }
 }
 
 export const sounds = new SoundFX();
+
