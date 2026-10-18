@@ -1,0 +1,228 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-pixel: 'Press Start 2P', monospace;
+    --font-comic: 'Fredoka', 'Nunito', sans-serif;
+  }
+
+  body {
+    background-color: #1a1a2e;
+    color: #f1f2f6;
+    font-family: var(--font-comic);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+  }
+}
+
+/* Tipografia Pixel Art */
+.font-pixel {
+  font-family: 'Press Start 2P', monospace, sans-serif;
+  letter-spacing: -0.5px;
+}
+
+/* Molduras e Bordas Estilo 8-bit / 16-bit */
+.pixel-box {
+  border: 4px solid #0f0f1b;
+  box-shadow: 
+    4px 4px 0px 0px rgba(0, 0, 0, 0.4),
+    inset -4px -4px 0px 0px rgba(0, 0, 0, 0.25),
+    inset 4px 4px 0px 0px rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+}
+
+.pixel-box-sm {
+  border: 3px solid #0f0f1b;
+  box-shadow: 
+    3px 3px 0px 0px rgba(0, 0, 0, 0.35),
+    inset -2px -2px 0px 0px rgba(0, 0, 0, 0.2),
+    inset 2px 2px 0px 0px rgba(255, 255, 255, 0.25);
+  border-radius: 6px;
+}
+
+.pixel-panel-gold {
+  background: linear-gradient(180deg, #ffd32a 0%, #ff9f1a 100%);
+  border: 4px solid #4a2800;
+  box-shadow: 4px 4px 0px #241400;
+}
+
+.pixel-panel-cyan {
+  background: linear-gradient(180deg, #4bcffa 0%, #0fbcf9 100%);
+  border: 4px solid #0652dd;
+  box-shadow: 4px 4px 0px #032b75;
+}
+
+.pixel-panel-purple {
+  background: linear-gradient(180deg, #a55eea 0%, #8854d0 100%);
+  border: 4px solid #3b1b66;
+  box-shadow: 4px 4px 0px #1e0938;
+}
+
+/* Botões Táteis com Feedback Físico (Pressionar 3D) */
+.pixel-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.8rem;
+  padding: 0.85rem 1.4rem;
+  border: 3px solid #0f0f1b;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  box-shadow: 0px 6px 0px #0f0f1b;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
+}
+
+.pixel-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 8px 0px #0f0f1b;
+}
+
+.pixel-btn:active {
+  transform: translateY(4px);
+  box-shadow: 0px 2px 0px #0f0f1b;
+}
+
+.pixel-btn-primary {
+  background: linear-gradient(180deg, #ff6b81 0%, #ee5253 100%);
+  color: #ffffff;
+  border-color: #5c181f;
+  box-shadow: 0px 6px 0px #5c181f;
+}
+.pixel-btn-primary:active {
+  box-shadow: 0px 2px 0px #5c181f;
+}
+
+.pixel-btn-success {
+  background: linear-gradient(180deg, #2ed573 0%, #10ac84 100%);
+  color: #ffffff;
+  border-color: #0c5744;
+  box-shadow: 0px 6px 0px #0c5744;
+}
+.pixel-btn-success:active {
+  box-shadow: 0px 2px 0px #0c5744;
+}
+
+.pixel-btn-warning {
+  background: linear-gradient(180deg, #ffa502 0%, #ff7f50 100%);
+  color: #ffffff;
+  border-color: #632d0c;
+  box-shadow: 0px 6px 0px #632d0c;
+}
+.pixel-btn-warning:active {
+  box-shadow: 0px 2px 0px #632d0c;
+}
+
+.pixel-btn-info {
+  background: linear-gradient(180deg, #70a1ff 0%, #1e90ff 100%);
+  color: #ffffff;
+  border-color: #0e3f78;
+  box-shadow: 0px 6px 0px #0e3f78;
+}
+.pixel-btn-info:active {
+  box-shadow: 0px 2px 0px #0e3f78;
+}
+
+.pixel-btn-dark {
+  background: linear-gradient(180deg, #57606f 0%, #2f3542 100%);
+  color: #ffffff;
+  border-color: #1e272e;
+  box-shadow: 0px 6px 0px #1e272e;
+}
+.pixel-btn-dark:active {
+  box-shadow: 0px 2px 0px #1e272e;
+}
+
+/* Animações e Efeitos Lúdicos */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); }
+  50% { box-shadow: 0 0 24px rgba(255, 215, 0, 0.85); }
+}
+
+@keyframes bounce-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-gold {
+  animation: pulse-gold 2s infinite;
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 1.5s ease-in-out infinite;
+}
+
+/* Fundo com Malha Espacial Retrô */
+.retro-grid {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+}
+
+/* Balão de Fala do PET */
+.pet-bubble {
+  position: relative;
+  background: #ffffff;
+  color: #2f3542;
+  border: 3px solid #2f3542;
+  border-radius: 12px;
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.25);
+}
+
+.pet-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 28px;
+  border-width: 12px 10px 0;
+  border-style: solid;
+  border-color: #ffffff transparent;
+  display: block;
+  width: 0;
+}
+
+.pet-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -16px;
+  left: 26px;
+  border-width: 14px 12px 0;
+  border-style: solid;
+  border-color: #2f3542 transparent;
+  display: block;
+  width: 0;
+}
+
+/* Modo Foco (Estilo Calmo e Menos Estímulos) */
+body.focus-mode-active {
+  background-color: #1e272e;
+}
+
+body.focus-mode-active .animate-float,
+body.focus-mode-active .animate-bounce-subtle,
+body.focus-mode-active .animate-pulse-gold {
+  animation: none !important;
+}
+
+/* Suporte a prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
