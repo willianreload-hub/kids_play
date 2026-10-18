@@ -37,31 +37,49 @@ export default function JogosPage() {
       genre: 'Sandbox / Mineração',
       description: 'Dê picaretadas nos blocos com a resposta correta para coletar gemas raras e construir seu castelo!',
       color: '#0fbcf9',
-      badge: 'Matemática & Português',
+      badge: 'Matemática (BNCC)',
+      href: '/jogos/matematica',
+      buttonText: 'ENTRAR NA MINA DE BLOCOS ⛏️',
     },
     {
       id: 'aventura_plataforma',
       title: 'Salto nas Ilhas Celestes',
       genre: 'Aventura & Plataforma',
-      description: 'Corra, pule entre nuvens e acerte os desafios para abrir pontes secretas até o topo!',
+      description: 'Corra, pule entre nuvens e acerte os desafios de ortografia para abrir pontes secretas até o topo!',
       color: '#ff6b81',
-      badge: 'Ciências & Geografia',
+      badge: 'Língua Portuguesa',
+      href: '/jogos/portugues',
+      buttonText: 'ENTRAR NA TRILHA DE SALTOS 🌉',
     },
     {
-      id: 'corrida_tabuada',
-      title: 'Velocidade Turbo das Estrelas',
-      genre: 'Corrida Rápida',
-      description: 'Acelere seu foguetinho interestelar a cada conta de tabuada resolvida antes que o tempo acabe!',
-      color: '#ffa502',
-      badge: 'Tabuada & Reflexos',
-    },
-    {
-      id: 'hub_mundos',
-      title: 'Praça dos Portais Criativos',
-      genre: 'Mundo Aberto / Hub',
-      description: 'Encontre amigos, visite ilhas temáticas de cada matéria e colete baús escondidos com seu PET!',
+      id: 'ingles_voz',
+      title: 'Ilha do Inglês Falante',
+      genre: 'Reconhecimento de Voz & Áudio',
+      description: 'Ouça pronúncias nativas em inglês, repita no microfone e colecione estrelas com o seu PET!',
       color: '#a55eea',
-      badge: 'Exploração Livre',
+      badge: 'Inglês Interativo',
+      href: '/jogos/ingles',
+      buttonText: 'ENTRAR NA ILHA DE VOZ 🗣️',
+    },
+    {
+      id: 'estacao_ciencias',
+      title: 'Estação Científica da Natureza',
+      genre: 'Laboratório & Descoberta',
+      description: 'Examine animais, ciclos da água, plantas e o sistema solar no laboratório interativo!',
+      color: '#2ed573',
+      badge: 'Ciências Naturais',
+      href: '/jogos/ciencias',
+      buttonText: 'EXPLORAR O LABORATÓRIO 🔬',
+    },
+    {
+      id: 'mestre_teclado',
+      title: 'Mestre do Teclado Retrô',
+      genre: 'Agilidade & Letramento',
+      description: 'Treine a posição correta dos dedos com teclas brilhantes, meça sua velocidade WPM e seja um craque!',
+      color: '#ff7f50',
+      badge: 'Digitação Ágil',
+      href: '/jogos/digitacao',
+      buttonText: 'DOMINAR O TECLADO ⌨️',
     },
   ];
 
@@ -233,6 +251,39 @@ export default function JogosPage() {
                       JOGAR SALTOS MÁGICOS 🌉
                     </PixelButton>
                   </Link>
+                ) : subject.id === 'ciencias' ? (
+                  <Link href="/jogos/ciencias" className="w-full">
+                    <PixelButton
+                      variant="primary"
+                      size="sm"
+                      className="w-full"
+                      icon={<Play className="w-3.5 h-3.5 fill-current" />}
+                    >
+                      JOGAR LABORATÓRIO 🔬
+                    </PixelButton>
+                  </Link>
+                ) : subject.id === 'ingles' ? (
+                  <Link href="/jogos/ingles" className="w-full">
+                    <PixelButton
+                      variant="primary"
+                      size="sm"
+                      className="w-full"
+                      icon={<Play className="w-3.5 h-3.5 fill-current" />}
+                    >
+                      JOGAR COM VOZ 🗣️
+                    </PixelButton>
+                  </Link>
+                ) : subject.id === 'digitacao' ? (
+                  <Link href="/jogos/digitacao" className="w-full">
+                    <PixelButton
+                      variant="primary"
+                      size="sm"
+                      className="w-full"
+                      icon={<Play className="w-3.5 h-3.5 fill-current" />}
+                    >
+                      JOGAR DIGITAÇÃO ⌨️
+                    </PixelButton>
+                  </Link>
                 ) : (
                   <PixelButton
                     variant="primary"
@@ -252,7 +303,7 @@ export default function JogosPage() {
 
       {/* CONTEÚDO DA TAB: MINIJOGOS ORIGINAIS */}
       {activeTab === 'minijogos' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {originalGames.map(game => (
             <div
               key={game.id}
@@ -281,26 +332,15 @@ export default function JogosPage() {
                 </div>
               </div>
 
-              {game.id === 'bloco_minerador' ? (
-                <Link href="/jogos/matematica" className="w-full">
+              {game.href ? (
+                <Link href={game.href} className="w-full">
                   <PixelButton
                     variant="warning"
                     size="md"
                     className="w-full"
                     icon={<Gamepad2 className="w-4 h-4" />}
                   >
-                    ENTRAR NA MINA DE BLOCOS ⛏️
-                  </PixelButton>
-                </Link>
-              ) : game.id === 'aventura_plataforma' ? (
-                <Link href="/jogos/portugues" className="w-full">
-                  <PixelButton
-                    variant="warning"
-                    size="md"
-                    className="w-full"
-                    icon={<Gamepad2 className="w-4 h-4" />}
-                  >
-                    ENTRAR NA TRILHA DE SALTOS 🌉
+                    {game.buttonText}
                   </PixelButton>
                 </Link>
               ) : (
