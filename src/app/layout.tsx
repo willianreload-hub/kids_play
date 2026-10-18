@@ -1,12 +1,31 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { AuthProvider } from '../lib/auth-context';
 import { Navbar } from '../components/Navbar';
 import { PetCompanion } from '../components/PetCompanion';
+import { ParticleTrail } from '../components/ParticleTrail';
+import { PwaRegister } from '../components/PwaRegister';
 
 export const metadata: Metadata = {
   title: 'Kids-Player | Reforço Escolar Gamificado para 3º e 4º ano',
   description: 'Plataforma lúdica de reforço escolar alinhada à BNCC com minijogos, PETs companheiros, ranking com coroa e Modo Foco.',
+  manifest: '/manifest.json',
+  icons: {
+    icon: '/icon-192.svg',
+    apple: '/icon-192.svg',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Kids-Player',
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#0f172a',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({
@@ -32,6 +51,8 @@ export default function RootLayout({
               {children}
             </main>
             <PetCompanion />
+            <ParticleTrail />
+            <PwaRegister />
           </div>
         </AuthProvider>
       </body>

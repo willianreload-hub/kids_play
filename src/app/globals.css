@@ -136,6 +136,16 @@
   box-shadow: 0px 2px 0px #1e272e;
 }
 
+.pixel-btn-danger {
+  background: linear-gradient(180deg, #ff4757 0%, #d63031 100%);
+  color: #ffffff;
+  border-color: #741619;
+  box-shadow: 0px 6px 0px #741619;
+}
+.pixel-btn-danger:active {
+  box-shadow: 0px 2px 0px #741619;
+}
+
 /* Animações e Efeitos Lúdicos */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }

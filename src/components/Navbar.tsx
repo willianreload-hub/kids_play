@@ -25,6 +25,7 @@ export function Navbar() {
     { href: '/ranking', label: '🏆 Ranking', key: 'ranking' },
     { href: '/missoes', label: '🎯 Missões', key: 'missoes' },
     { href: '/perfil', label: '👤 Perfil', key: 'perfil' },
+    { href: '/responsavel', label: '🛡️ Pais', key: 'responsavel' },
   ];
 
   return (

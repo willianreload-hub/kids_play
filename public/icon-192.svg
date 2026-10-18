@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="50%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde047"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Rounded Squircle -->
+  <rect width="192" height="192" rx="42" fill="url(#bg)"/>
+  <rect x="8" y="8" width="176" height="176" rx="34" fill="none" stroke="#fde047" stroke-width="4" stroke-dasharray="12 6" opacity="0.4"/>
+  
+  <!-- Crown on Top -->
+  <polygon points="68,60 80,72 96,52 112,72 124,60 120,84 72,84" fill="url(#gold)" stroke="#78350f" stroke-width="3"/>
+  <circle cx="68" cy="58" r="4" fill="#fde047"/>
+  <circle cx="96" cy="50" r="5" fill="#fde047"/>
+  <circle cx="124" cy="58" r="4" fill="#fde047"/>
+
+  <!-- Pixel Controller / Pet Face Body -->
+  <rect x="44" y="82" width="104" height="66" rx="18" fill="#0f172a" stroke="#fde047" stroke-width="4"/>
+  
+  <!-- D-Pad (Left) -->
+  <rect x="58" y="102" width="8" height="24" rx="2" fill="#38bdf8"/>
+  <rect x="50" y="110" width="24" height="8" rx="2" fill="#38bdf8"/>
+
+  <!-- Action Buttons (Right) -->
+  <circle cx="128" cy="106" r="6" fill="#f43f5e"/>
+  <circle cx="138" cy="118" r="6" fill="#10b981"/>
+  <circle cx="118" cy="118" r="6" fill="#eab308"/>
+  <circle cx="128" cy="130" r="6" fill="#a855f7"/>
+
+  <!-- Sparkle Star in Center -->
+  <polygon points="96,96 99,105 108,108 99,111 96,120 93,111 84,108 93,105" fill="#fde047"/>
+</svg>

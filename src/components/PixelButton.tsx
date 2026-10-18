@@ -4,7 +4,7 @@ import React from 'react';
 import { sounds } from '../lib/sound-effects';
 
 interface PixelButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'success' | 'warning' | 'info' | 'dark';
+  variant?: 'primary' | 'success' | 'warning' | 'info' | 'dark' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   children: React.ReactNode;
   icon?: React.ReactNode;
@@ -32,6 +32,7 @@ export function PixelButton({
     warning: 'pixel-btn-warning',
     info: 'pixel-btn-info',
     dark: 'pixel-btn-dark',
+    danger: 'pixel-btn-danger',
   }[variant];
 
   const sizeClass = {
