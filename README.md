@@ -49,41 +49,77 @@ Abra [http://localhost:3000](http://localhost:3000) no seu navegador.
 
 ---
 
-## 📂 Estrutura de Pastas
+## 📂 Estrutura de Pastas & Minijogos
 
 ```text
 Projeto Kids-Player/
 ├── src/
 │   ├── app/
-│   │   ├── layout.tsx         # Layout raiz com fontes, AuthProvider, Navbar e PetCompanion
+│   │   ├── layout.tsx         # Layout raiz com fontes, AuthProvider, Navbar, CustomCursor e PetCompanion
 │   │   ├── page.tsx           # Landing Page imersiva com apresentação lúdica
-│   │   ├── globals.css        # Design System pixel art, botões 3D e Modo Foco
+│   │   ├── globals.css        # Design System pixel art, botões 3D, auras neon e Modo Foco
 │   │   ├── cadastro/          # Cadastro com responsável, nickname moderado, avatar, pet e Modo Foco
 │   │   ├── login/             # Login do aluno com modo de demonstração instantâneo
-│   │   ├── jogos/             # Hub das matérias escolares BNCC e minijogos originais
-│   │   ├── perfil/            # Perfil do aluno, avatar, XP, ajustes finos do Modo Foco e dados do responsável
+│   │   ├── jogos/             # Hub das matérias escolares BNCC, Mapa-Mundi e Passe da Sabedoria
+│   │   │   ├── biomas/        # Expedição pelos 9 Ecossistemas do Brasil (Geografia/Ciências)
+│   │   │   ├── ciencias/      # Estação Científica da Natureza (Laboratório Interativo)
+│   │   │   ├── digitacao/     # Mestre do Teclado Retrô (Agilidade e Letramento)
+│   │   │   ├── fracoes/       # Alquimia das Frações & Medidas (Corte de Tortas e Caldeirão)
+│   │   │   ├── ingles/        # Ilha do Inglês Falante com Reconhecimento de Voz (TTS & STT)
+│   │   │   ├── matematica/    # Mundo dos Blocos da Sabedoria (Sandbox e Mineração)
+│   │   │   ├── portugues/     # Salto nas Ilhas Celestes (Plataforma e Ortografia)
+│   │   │   └── tabuada-espacial/ # Corrida Espacial da Tabuada (Combos Retro x1 a x5 e Boss)
+│   │   ├── perfil/            # Perfil do aluno, Sala de Troféus, Streak 7 Dias, Roleta Diária e Cursors
 │   │   ├── ranking/           # Trono dos Campeões com coroa pixel art, top diário/semanal/mensal e pódio
-│   │   ├── pets/              # Álbum de PETs, raridades, chances transparentes e abertura de baú por pontos
-│   │   └── missoes/           # Quests diárias, streak e conquistas
+│   │   ├── pets/              # Álbum com 15 PETs, 16 Acessórios, Cuidados/Afeto e Baú por Pontos
+│   │   ├── missoes/           # Quests diárias dinâmicas, baús semanais e 10 conquistas
+│   │   └── responsavel/       # Painel de acompanhamento pedagógico para os pais
 │   ├── components/
+│   │   ├── CustomCursor.tsx   # Ponteiro temático retrô com faíscas e efeito tátil de clique
 │   │   ├── Navbar.tsx         # HUD de jogo: moedas, streak, nível, toggle de som e Modo Foco
 │   │   ├── PetCompanion.tsx   # Assistente flutuante com balão de fala dinâmico e leitura em voz
-│   │   ├── PetIcon.tsx        # Renderizador nativo SVG em pixel art para todos os PETs
+│   │   ├── PetIcon.tsx        # Renderizador nativo SVG em pixel art para os 15 PETs
 │   │   └── PixelButton.tsx    # Botão tátil 3D com áudio de clique embutido
 │   └── lib/
 │       ├── types.ts           # Definições de tipos TypeScript do domínio e banco
 │       ├── supabase.ts        # Cliente Supabase com verificação de credenciais
 │       ├── auth-context.tsx   # Gerenciamento de estado do aluno, pontos, pets e Modo Foco
-│       ├── content-data.ts    # Catálogo de matérias BNCC, PETs iniciais, avatares e quests
+│       ├── content-data.ts    # Catálogo de matérias BNCC, 15 PETs, 16 acessórios, 10 conquistas e banco de questões
 │       ├── nickname-moderator.ts # Moderador de apelidos infantis (LGPD & ECA Digital)
 │       ├── sound-effects.ts   # Sintetizador Web Audio API de efeitos 8-bit sem dependências
 │       └── speech.ts          # Web Speech API para leitura em voz alta e reconhecimento
 ├── supabase/
-│   └── schema.sql             # Esquema SQL completo com RLS, ledger de pontos e stored procedures
+│   └── schema.sql             # Esquema SQL completo com RLS, 15 pets, 16 acessórios, 10 conquistas e BNCC
 ├── .env.example
 ├── .env.local
 └── package.json
 ```
+
+---
+
+## 🎮 Minijogos Curriculares BNCC (8 Aventuras)
+
+1. **🚀 Corrida Espacial da Tabuada (`/jogos/tabuada-espacial`)**: Pilotagem espacial arcade, combate a asteroides com multiplicação e divisão (`EF03MA03`, `EF04MA04`) e batalha contra o Chefão Mega Meteoro.
+2. **🧭 Expedição pelos Biomas do Brasil (`/jogos/biomas`)**: Sobrevoo de balão pelos 9 grandes ecossistemas brasileiros (Amazônia, Caatinga, Cerrado, Pantanal, Mata Atlântica, Pampa, Manguezais, Araucárias e Cocais), com insígnias de guardião da natureza (`EF03GE04`, `EF04GE05`).
+3. **🧪 Alquimia das Frações & Medidas (`/jogos/fracoes`)**: Corte visual de pizzas e tortas mágicas ($\frac{1}{2}$, $\frac{1}{4}$, $\frac{3}{4}$, $\frac{2}{3}$), poções alquímicas e conversão de litros, metros e quilogramas (`EF04MA09`, `EF04MA20`).
+4. **⛏️ Mundo dos Blocos da Sabedoria (`/jogos/matematica`)**: Mineração de gemas e pedras respondendo a contas de adição e subtração com reserva (`EF03MA05`).
+5. **🌉 Salto nas Ilhas Celestes (`/jogos/portugues`)**: Corrida de plataformas ativando pontes com regras ortográficas de S/SS, R/RR e M antes de P/B (`EF03LP01`).
+6. **🔬 Estação Científica da Natureza (`/jogos/ciencias`)**: Observatório ambiental com ciclos da água, seres vivos, fotossíntese e fases da lua (`EF03CI07`, `EF04CI04`, `EF04CI11`).
+7. **🗣️ Ilha do Inglês Falante (`/jogos/ingles`)**: Treinamento de pronúncia com síntese e reconhecimento de voz (Web Speech API).
+8. **⌨️ Mestre do Teclado Retrô (`/jogos/digitacao`)**: Digitação ágil com medição de velocidade (WPM) e precisão.
+
+---
+
+## 🐾 Companheiros Mágicos & Gamificação Ética
+
+- **15 PETs Colecionáveis:** Pipoca, Bolha, Sabichão, Faísca, Cósmico, Solzinho, Trovãozinho, Gota d'Água, Lupin, Estelar, Titã de Cristal, Glub, Atena, Ignis e Flora — renderizados dinamicamente em SVG pixel-art.
+- **16 Acessórios Exclusivos:** Chapéus, óculos steampunk e VR, capas de nebulosa, asas de borboleta e auras de fogo fátuo.
+- **Sistema de Cuidados & Afeto:** Alimentação com frutinhas da sabedoria, carinho interativo com ronrom em 8-bit e diálogos pedagógicos com TTS.
+- **Sala de Troféus & Conquistas:** 10 conquistas categorizadas (*Estudo*, *Jogos*, *Pets*, *Hábito*) com resgate de moedas e XP.
+- **Fogo do Saber (Streak 7 Dias):** Bônus ativo de +10% de XP diário para estimular o hábito de estudo regular.
+- **Roleta da Sabedoria Diária:** 1 baú gratuito por dia com prêmios de até 100 moedas, sem anúncios nem microtransações.
+- **Passe da Sabedoria:** Trilha progressiva gratuita de 30 níveis no Hub de Jogos.
+- **Ponteiros do Mouse Mágicos:** 5 temas personalizáveis no perfil (`varinha`, `picareta`, `patinha`, `foguete`, `padrao`) com animações de partículas e ondas de clique táteis.
 
 ---
 
