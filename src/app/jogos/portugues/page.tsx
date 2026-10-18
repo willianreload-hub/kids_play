@@ -16,7 +16,7 @@ import {
 import confetti from 'canvas-confetti';
 
 export default function PortuguesGamePage() {
-  const { profile, activePet, focusMode, addPoints } = useAuth();
+  const { profile, activePet, focusMode, addPoints, updateQuestProgress } = useAuth();
   const studentGrade = profile?.school_grade || 3;
 
   // Filtra questões de português para o ano escolar do aluno
@@ -78,6 +78,7 @@ export default function PortuguesGamePage() {
         setBridgesCrossed(prev => prev + 1);
         setScore(prev => prev + 25);
         addPoints(25, 'salto_portugues');
+        updateQuestProgress('desafio_palavras', 1);
 
         setFeedback({
           isCorrect: true,

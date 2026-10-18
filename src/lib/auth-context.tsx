@@ -1,8 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useTransition } from 'react';
-import { StudentProfile, Guardian, FocusModeSettings, Pet, SchoolGrade, UserPet, UserAccessory } from './types';
-import { PET_CATALOG, ACCESSORY_CATALOG } from './content-data';
+import { StudentProfile, Guardian, FocusModeSettings, Pet, SchoolGrade, UserPet, UserAccessory, QuestItem } from './types';
+import { PET_CATALOG, ACCESSORY_CATALOG, INITIAL_QUESTS } from './content-data';
 import { supabase, isSupabaseConfigured } from './supabase';
 import { sounds } from './sound-effects';
 
@@ -25,6 +25,8 @@ interface AuthContextType {
   userPets: UserPet[];
   userAccessories: UserAccessory[];
   equippedAccessoryId: string | null;
+  quests: QuestItem[];
+  streakBonusPercent: number;
   focusMode: FocusModeSettings;
   isLoading: boolean;
   isDemo: boolean;
@@ -34,6 +36,8 @@ interface AuthContextType {
   buyAccessory: (accessoryId: string) => { success: boolean; message?: string };
   toggleEquipAccessory: (accessoryId: string) => void;
   unlockPetFromBox: (pet: Pet, isDuplicate: boolean, fragments: number) => void;
+  updateQuestProgress: (questKey: string, increment?: number) => void;
+  claimQuestReward: (questId: string) => { success: boolean; pointsEarned: number };
   toggleFocusMode: (active: boolean) => void;
   updateFocusSettings: (settings: Partial<FocusModeSettings>) => void;
   updateProfile: (updates: Partial<StudentProfile>) => void;
@@ -62,6 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userPets, setUserPets] = useState<UserPet[]>([]);
   const [userAccessories, setUserAccessories] = useState<UserAccessory[]>([]);
   const [equippedAccessoryId, setEquippedAccessoryId] = useState<string | null>(null);
+  const [quests, setQuests] = useState<QuestItem[]>(INITIAL_QUESTS);
   const [focusMode, setFocusMode] = useState<FocusModeSettings>(DEFAULT_FOCUS_SETTINGS);
   const [isLoading, setIsLoading] = useState(true);
   const [isDemo, setIsDemo] = useState(false);
@@ -78,6 +83,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const savedUserPets = localStorage.getItem('kids_user_pets');
         const savedUserAccessories = localStorage.getItem('kids_user_accessories');
         const savedEquippedAcc = localStorage.getItem('kids_equipped_acc');
+        const savedQuests = localStorage.getItem('kids_quests');
+
+        if (savedQuests) {
+          try {
+            setQuests(JSON.parse(savedQuests));
+          } catch {}
+        }
 
         if (savedProfile) {
           try {
@@ -361,6 +373,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  // Cálculo de Streak e Bônus
+  const streakDays = profile?.streak_days || 1;
+  const streakBonusPercent = streakDays >= 14 ? 35 : streakDays >= 7 ? 20 : streakDays >= 3 ? 10 : 5;
+
+  // Atualização em tempo real do progresso das quests ao jogar
+  const updateQuestProgress = (questKey: string, increment: number = 1) => {
+    setQuests(prev => {
+      const updated = prev.map(q => {
+        if (q.quest_key === questKey && !q.is_completed) {
+          const nextProgress = Math.min(q.target_count, q.current_progress + increment);
+          const completed = nextProgress >= q.target_count;
+          if (completed && !q.is_completed) {
+            sounds.playSuccess();
+          }
+          return {
+            ...q,
+            current_progress: nextProgress,
+            is_completed: completed,
+          };
+        }
+        return q;
+      });
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('kids_quests', JSON.stringify(updated));
+      }
+      return updated;
+    });
+  };
+
+  // Resgatar recompensa com bônus de streak aplicado
+  const claimQuestReward = (questId: string) => {
+    const quest = quests.find(q => q.id === questId);
+    if (!quest || !quest.is_completed || quest.is_claimed) {
+      return { success: false, pointsEarned: 0 };
+    }
+
+    const bonusMultiplier = 1 + (streakBonusPercent / 100);
+    const finalPoints = Math.round(quest.reward_points * bonusMultiplier);
+
+    addPoints(finalPoints, `quest_${quest.quest_key}`);
+    sounds.playLevelUp();
+
+    setQuests(prev => {
+      const updated = prev.map(q =>
+        q.id === questId ? { ...q, is_claimed: true } : q
+      );
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('kids_quests', JSON.stringify(updated));
+      }
+      return updated;
+    });
+
+    return { success: true, pointsEarned: finalPoints };
+  };
+
   const toggleFocusMode = (active: boolean) => {
     setFocusMode(prev => {
       const updated = { ...prev, is_active: active };
@@ -573,6 +641,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem('kids_user_pets');
       localStorage.removeItem('kids_user_accessories');
       localStorage.removeItem('kids_equipped_acc');
+      localStorage.removeItem('kids_quests');
     }
     setProfile(null);
     setGuardian(null);
@@ -580,6 +649,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUserPets([]);
     setUserAccessories([]);
     setEquippedAccessoryId(null);
+    setQuests(INITIAL_QUESTS);
   };
 
   return (
@@ -591,6 +661,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         userPets,
         userAccessories,
         equippedAccessoryId,
+        quests,
+        streakBonusPercent,
         focusMode,
         isLoading,
         isDemo,
@@ -600,6 +672,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         buyAccessory,
         toggleEquipAccessory,
         unlockPetFromBox,
+        updateQuestProgress,
+        claimQuestReward,
         toggleFocusMode,
         updateFocusSettings,
         updateProfile,

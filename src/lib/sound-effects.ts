@@ -181,6 +181,42 @@ class SoundFX {
       });
     } catch {}
   }
+
+  // Celebração de Pódio e Grande Triunfo
+  public playFanfare() {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      const notes = [
+        { freq: 523.25, time: 0, dur: 0.12 },     // C5
+        { freq: 659.25, time: 0.12, dur: 0.12 },  // E5
+        { freq: 783.99, time: 0.24, dur: 0.12 },  // G5
+        { freq: 1046.50, time: 0.36, dur: 0.35 }, // C6
+        { freq: 880, time: 0.72, dur: 0.12 },     // A5
+        { freq: 1046.50, time: 0.86, dur: 0.45 }, // C6
+      ];
+
+      notes.forEach(({ freq, time, dur }) => {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime + time);
+
+        gain.gain.setValueAtTime(0.14, this.ctx.currentTime + time);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + time + dur - 0.02);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(this.ctx.currentTime + time);
+        osc.stop(this.ctx.currentTime + time + dur);
+      });
+    } catch {}
+  }
 }
 
 export const sounds = new SoundFX();

@@ -16,7 +16,7 @@ import {
 import confetti from 'canvas-confetti';
 
 export default function MatematicaGamePage() {
-  const { profile, activePet, focusMode, addPoints } = useAuth();
+  const { profile, activePet, focusMode, addPoints, updateQuestProgress } = useAuth();
   const studentGrade = profile?.school_grade || 3;
 
   // Filtra questões de matemática para o ano escolar do aluno
@@ -81,6 +81,7 @@ export default function MatematicaGamePage() {
         setMinedResources(prev => [...prev, randomGem]);
         setScore(prev => prev + 25);
         addPoints(25, 'mineracao_matematica');
+        updateQuestProgress('olimpiada_matematica', 1);
 
         setFeedback({
           isCorrect: true,
