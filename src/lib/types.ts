@@ -97,3 +97,36 @@ export interface AvatarPreset {
   svg_color: string;
   icon_name: string;
 }
+
+export interface QuestionOption {
+  id: string;
+  text: string;
+  icon?: string;
+}
+
+export interface Question {
+  id: string;
+  subject_id: 'matematica' | 'portugues' | 'ciencias' | 'historia_geografia' | 'ingles' | 'digitacao';
+  grade: SchoolGrade;
+  bncc_code: string;
+  topic: string;
+  prompt: string;
+  audio_prompt_text?: string;
+  question_type: 'multiple_choice' | 'block_break' | 'fill_word';
+  options: QuestionOption[];
+  correct_answer: string;
+  explanation: string;
+  difficulty: 1 | 2 | 3;
+}
+
+export interface GameSessionResult {
+  game_type: string;
+  subject_id: string;
+  score: number;
+  correct_count: number;
+  total_questions: number;
+  accuracy_percent: number;
+  points_earned: number;
+  xp_earned: number;
+  duration_seconds: number;
+}

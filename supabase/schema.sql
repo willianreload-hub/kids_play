@@ -615,3 +615,19 @@ INSERT INTO public.quests (title, description, category, reward_points, reward_x
     ('Caça-Vocabulário em Inglês', 'Fale ou selecione 3 palavras corretas em Inglês.', 'diaria', 70, 50, 3, 'ingles_repeticao'),
     ('Corrida da Tabuada', 'Vença uma corrida no modo velocidade sem errar nenhuma conta.', 'diaria', 80, 60, 1, 'corrida_tabuada')
 ON CONFLICT DO NOTHING;
+
+-- Unidades BNCC Iniciais (Matemática e Português)
+INSERT INTO public.units (id, subject_id, grade, title, description, order_index) VALUES
+    ('00000000-0000-0000-0000-000000000001', 'matematica', 3, 'Números e Operações Divertidas', 'Adição, subtração e primeiras tabuadas', 1),
+    ('00000000-0000-0000-0000-000000000002', 'matematica', 4, 'Multiplicação e Frações Mágicas', 'Tabuadas avançadas, divisão e noções de frações', 1),
+    ('00000000-0000-0000-0000-000000000003', 'portugues', 3, 'Ortografia e Sílabas Fantásticas', 'Regras de S/SS, R/RR e M antes de P e B', 1),
+    ('00000000-0000-0000-0000-000000000004', 'portugues', 4, 'Mestres da Leitura e Pontuação', 'Uso do C/Ç, adjetivos e pontuação expressiva', 1)
+ON CONFLICT DO NOTHING;
+
+-- Habilidades BNCC Iniciais
+INSERT INTO public.skills (id, unit_id, bncc_code, title, description) VALUES
+    ('00000000-0000-0000-0000-000000000011', '00000000-0000-0000-0000-000000000001', 'EF03MA05', 'Adição e Subtração com Recursos', 'Estratégias de cálculo com reserva e reagrupamento'),
+    ('00000000-0000-0000-0000-000000000012', '00000000-0000-0000-0000-000000000002', 'EF04MA04', 'Multiplicação e Divisão', 'Resolução de problemas com tabuada e repartição'),
+    ('00000000-0000-0000-0000-000000000013', '00000000-0000-0000-0000-000000000003', 'EF03LP01', 'Correspondências Fonema-Grafema', 'Identificação e escrita de palavras com S/SS e R/RR'),
+    ('00000000-0000-0000-0000-000000000014', '00000000-0000-0000-0000-000000000004', 'EF04LP01', 'Grafia Correta com C e Ç', 'Construção do sistema alfabético e ortografia')
+ON CONFLICT DO NOTHING;

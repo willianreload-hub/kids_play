@@ -211,15 +211,39 @@ export default function JogosPage() {
               </div>
 
               <div className="flex items-center gap-2 pt-2 border-t border-slate-800">
-                <PixelButton
-                  variant="primary"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => handleQuickPlay(subject.name)}
-                  icon={<Play className="w-3.5 h-3.5 fill-current" />}
-                >
-                  TREINAR AGORA (+25 🪙)
-                </PixelButton>
+                {subject.id === 'matematica' ? (
+                  <Link href="/jogos/matematica" className="w-full">
+                    <PixelButton
+                      variant="primary"
+                      size="sm"
+                      className="w-full"
+                      icon={<Play className="w-3.5 h-3.5 fill-current" />}
+                    >
+                      JOGAR MINERAÇÃO ⛏️
+                    </PixelButton>
+                  </Link>
+                ) : subject.id === 'portugues' ? (
+                  <Link href="/jogos/portugues" className="w-full">
+                    <PixelButton
+                      variant="primary"
+                      size="sm"
+                      className="w-full"
+                      icon={<Play className="w-3.5 h-3.5 fill-current" />}
+                    >
+                      JOGAR SALTOS MÁGICOS 🌉
+                    </PixelButton>
+                  </Link>
+                ) : (
+                  <PixelButton
+                    variant="primary"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => handleQuickPlay(subject.name)}
+                    icon={<Play className="w-3.5 h-3.5 fill-current" />}
+                  >
+                    TREINAR AGORA (+25 🪙)
+                  </PixelButton>
+                )}
               </div>
             </div>
           ))}
@@ -257,15 +281,39 @@ export default function JogosPage() {
                 </div>
               </div>
 
-              <PixelButton
-                variant="warning"
-                size="md"
-                className="w-full"
-                onClick={() => handleQuickPlay(game.title)}
-                icon={<Gamepad2 className="w-4 h-4" />}
-              >
-                ENTRAR NA PARTIDA 🎮
-              </PixelButton>
+              {game.id === 'bloco_minerador' ? (
+                <Link href="/jogos/matematica" className="w-full">
+                  <PixelButton
+                    variant="warning"
+                    size="md"
+                    className="w-full"
+                    icon={<Gamepad2 className="w-4 h-4" />}
+                  >
+                    ENTRAR NA MINA DE BLOCOS ⛏️
+                  </PixelButton>
+                </Link>
+              ) : game.id === 'aventura_plataforma' ? (
+                <Link href="/jogos/portugues" className="w-full">
+                  <PixelButton
+                    variant="warning"
+                    size="md"
+                    className="w-full"
+                    icon={<Gamepad2 className="w-4 h-4" />}
+                  >
+                    ENTRAR NA TRILHA DE SALTOS 🌉
+                  </PixelButton>
+                </Link>
+              ) : (
+                <PixelButton
+                  variant="warning"
+                  size="md"
+                  className="w-full"
+                  onClick={() => handleQuickPlay(game.title)}
+                  icon={<Gamepad2 className="w-4 h-4" />}
+                >
+                  ENTRAR NA PARTIDA 🎮
+                </PixelButton>
+              )}
             </div>
           ))}
         </div>
