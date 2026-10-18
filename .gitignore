@@ -48,3 +48,6 @@ next-env.d.ts
 
 # OS
 Thumbs.db
+
+# scratch scripts
+scratch/
