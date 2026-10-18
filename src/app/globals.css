@@ -1,19 +1,29 @@
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    --font-pixel: 'Press Start 2P', monospace;
-    --font-comic: 'Fredoka', 'Nunito', sans-serif;
-  }
+@source "../app";
+@source "../components";
+@source "../lib";
 
-  body {
-    background-color: #1a1a2e;
-    color: #f1f2f6;
-    font-family: var(--font-comic);
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    overflow-x: hidden;
-  }
+@theme {
+  --font-pixel: 'Press Start 2P', monospace;
+  --font-comic: 'Fredoka', 'Nunito', sans-serif;
+  --color-kids-pink: #FF6B9D;
+  --color-kids-blue: #4ECDC4;
+  --color-kids-yellow: #FFE66D;
+  --color-kids-purple: #A855F7;
+  --color-kids-orange: #FF8C42;
+  --color-kids-green: #6BCB77;
+  --color-kids-red: #FF6B6B;
+  --color-kids-dark: #2D2B55;
+}
+
+body {
+  background-color: #141526;
+  color: #f1f2f6;
+  font-family: var(--font-comic);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
 }
 
 /* Tipografia Pixel Art */
