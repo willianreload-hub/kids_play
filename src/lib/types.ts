@@ -130,3 +130,23 @@ export interface GameSessionResult {
   xp_earned: number;
   duration_seconds: number;
 }
+
+export type AccessoryType = 'chapeu' | 'oculos' | 'capa' | 'efeito';
+
+export interface Accessory {
+  id: string;
+  name: string;
+  type: AccessoryType;
+  rarity: PetRarity;
+  price_points: number;
+  sprite_key: string;
+  description: string;
+  icon_name: string;
+}
+
+export interface UserAccessory {
+  id: string;
+  accessory_id: string;
+  is_equipped: boolean;
+  accessory?: Accessory;
+}

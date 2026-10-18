@@ -1,4 +1,4 @@
-import { Pet, SubjectItem, AvatarPreset, QuestItem, Question } from './types';
+import { Pet, SubjectItem, AvatarPreset, QuestItem, Question, Accessory } from './types';
 
 export const PET_CATALOG: Pet[] = [
   {
@@ -54,6 +54,79 @@ export const PET_CATALOG: Pet[] = [
     description: 'Uma ave mítica resplandecente que transforma erros em sabedoria e persistência!',
     sprite_key: 'pet_phoenix',
     base_power: 120,
+  },
+];
+
+export const ACCESSORY_CATALOG: Accessory[] = [
+  {
+    id: 'chapeu_formatura',
+    name: 'Capelo de Formatura',
+    type: 'chapeu',
+    rarity: 'normal',
+    price_points: 150,
+    sprite_key: 'acc_hat_grad',
+    description: 'Para o PET mais dedicado e estudioso da turma!',
+    icon_name: '🎓',
+  },
+  {
+    id: 'boina_artista',
+    name: 'Boina Criativa',
+    type: 'chapeu',
+    rarity: 'normal',
+    price_points: 180,
+    sprite_key: 'acc_beret',
+    description: 'Estimula a imaginação e a produção de histórias!',
+    icon_name: '🎨',
+  },
+  {
+    id: 'oculos_detetive',
+    name: 'Óculos de Detetive',
+    type: 'oculos',
+    rarity: 'raro',
+    price_points: 300,
+    sprite_key: 'acc_glasses_detective',
+    description: 'Perfeito para investigar pegadinhas na ortografia!',
+    icon_name: '🔍',
+  },
+  {
+    id: 'oculos_sol_pixel',
+    name: 'Óculos Sol Retrô',
+    type: 'oculos',
+    rarity: 'raro',
+    price_points: 350,
+    sprite_key: 'acc_sunglasses',
+    description: 'Estilo 16-bit com proteção total contra o brilho das estrelas!',
+    icon_name: '🕶️',
+  },
+  {
+    id: 'capa_estelar',
+    name: 'Capa de Super Herói',
+    type: 'capa',
+    rarity: 'epico',
+    price_points: 600,
+    sprite_key: 'acc_cape_hero',
+    description: 'Tremula ao vento enquanto seu PET te guia nos minijogos!',
+    icon_name: '🦸',
+  },
+  {
+    id: 'aura_estrelar',
+    name: 'Aura de Estrelas',
+    type: 'efeito',
+    rarity: 'lendario',
+    price_points: 1200,
+    sprite_key: 'acc_aura_stars',
+    description: 'Uma constelação em miniatura que orbita seu companheiro!',
+    icon_name: '✨',
+  },
+  {
+    id: 'coroa_ouro_pixel',
+    name: 'Coroa Imperial dos Campeões',
+    type: 'chapeu',
+    rarity: 'mitico',
+    price_points: 2500,
+    sprite_key: 'acc_crown_gold',
+    description: 'A lendária coroa reluzente concedida aos mestres do aprendizado!',
+    icon_name: '👑',
   },
 ];
 

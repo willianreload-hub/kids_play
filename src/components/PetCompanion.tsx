@@ -12,7 +12,7 @@ interface PetCompanionProps {
 }
 
 export function PetCompanion({ customMessage, mood = 'idle' }: PetCompanionProps) {
-  const { activePet, profile, focusMode } = useAuth();
+  const { activePet, profile, focusMode, equippedAccessoryId } = useAuth();
   const [isMinimized, setIsMinimized] = useState(false);
   const [currentMessage, setCurrentMessage] = useState(
     'Olá, campeão! Qual desafio nós vamos vencer hoje juntos?'
@@ -95,7 +95,7 @@ export function PetCompanion({ customMessage, mood = 'idle' }: PetCompanionProps
             className="cursor-pointer bg-gradient-to-b from-indigo-900 to-slate-950 p-2 rounded-2xl border-4 border-amber-400 shadow-xl hover:scale-105 active:scale-95 transition-transform"
             title={`Seu companheiro: ${activePet.name}`}
           >
-            <PetIcon petId={activePet.id} size={52} mood={mood} />
+            <PetIcon petId={activePet.id} size={52} mood={mood} accessoryId={equippedAccessoryId} />
           </button>
         </div>
       </div>

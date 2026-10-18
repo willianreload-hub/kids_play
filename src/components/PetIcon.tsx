@@ -4,16 +4,22 @@ interface PetIconProps {
   petId: string;
   size?: number;
   mood?: 'idle' | 'happy' | 'sad';
+  accessoryId?: string | null;
   className?: string;
 }
 
-export function PetIcon({ petId, size = 64, mood = 'idle', className = '' }: PetIconProps) {
+export function PetIcon({ petId, size = 64, mood = 'idle', accessoryId, className = '' }: PetIconProps) {
   // Renderizadores SVG pixel art puros, leves e originais
   const renderSvgContent = () => {
     switch (petId) {
       case 'pipoca_raposa':
         return (
           <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+            {/* Capa de Super Herói se equipada */}
+            {accessoryId === 'capa_estelar' && (
+              <polygon points="4,16 0,30 28,30 24,16" fill="#e74c3c" stroke="#c0392b" strokeWidth="1" />
+            )}
+
             {/* Orelhas da Raposinha */}
             <rect x="4" y="4" width="6" height="8" fill="#e67e22" />
             <rect x="6" y="6" width="3" height="4" fill="#2c3e50" />
@@ -49,20 +55,25 @@ export function PetIcon({ petId, size = 64, mood = 'idle', className = '' }: Pet
               </>
             )}
 
-            {/* Focinho */}
+            {/* Focinho e Boca */}
             <rect x="14" y="19" width="4" height="3" fill="#2c3e50" rx="1" />
-            {/* Boquinha */}
             <rect x="15" y="23" width="2" height="1" fill="#c0392b" />
+
+            {/* ACESSÓRIOS SOBREPOSTOS */}
+            {renderAccessoryOverlay()}
           </svg>
         );
 
       case 'bolha_slime':
         return (
           <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+            {accessoryId === 'capa_estelar' && (
+              <polygon points="4,16 0,28 32,28 28,16" fill="#e74c3c" stroke="#c0392b" strokeWidth="1" />
+            )}
+
             {/* Corpo Gelatinoso */}
             <rect x="6" y="10" width="20" height="16" fill="#2ed573" rx="4" />
             <rect x="4" y="14" width="24" height="10" fill="#2ed573" rx="3" />
-            {/* Brilho Gel */}
             <rect x="8" y="8" width="6" height="4" fill="#7bed9f" rx="1" />
             <rect x="8" y="12" width="3" height="3" fill="#ffffff" />
 
@@ -88,67 +99,133 @@ export function PetIcon({ petId, size = 64, mood = 'idle', className = '' }: Pet
                 <path d="M14 20 Q16 23 18 20" stroke="#0f5132" strokeWidth="2" fill="none" strokeLinecap="round" />
               </>
             )}
-            {/* Blush rosa */}
             <rect x="6" y="19" width="3" height="2" fill="#ff7675" rx="1" opacity="0.8" />
             <rect x="23" y="19" width="3" height="2" fill="#ff7675" rx="1" opacity="0.8" />
+
+            {renderAccessoryOverlay()}
           </svg>
         );
 
       case 'corujinha_pixel':
         return (
           <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-            {/* Orelhas / Peninhas */}
+            {accessoryId === 'capa_estelar' && (
+              <polygon points="4,16 0,28 32,28 28,16" fill="#e74c3c" stroke="#c0392b" strokeWidth="1" />
+            )}
             <rect x="6" y="5" width="4" height="5" fill="#4b6584" />
             <rect x="22" y="5" width="4" height="5" fill="#4b6584" />
-            {/* Corpo */}
             <rect x="6" y="8" width="20" height="18" fill="#778ca3" rx="3" />
-            {/* Barriguinha */}
             <rect x="10" y="15" width="12" height="10" fill="#d1d8e0" rx="2" />
-            {/* Óculos Pixel */}
             <rect x="7" y="11" width="7" height="6" fill="#f5f6fa" stroke="#f39c12" strokeWidth="1.5" />
             <rect x="18" y="11" width="7" height="6" fill="#f5f6fa" stroke="#f39c12" strokeWidth="1.5" />
             <rect x="14" y="13" width="4" height="2" fill="#f39c12" />
-            {/* Olhos nos óculos */}
             <rect x="9" y="13" width="3" height="3" fill="#2c3e50" />
             <rect x="20" y="13" width="3" height="3" fill="#2c3e50" />
-            {/* Bico */}
             <polygon points="16,17 14,21 18,21" fill="#e67e22" />
+
+            {renderAccessoryOverlay()}
           </svg>
         );
 
       case 'raio_dragao':
         return (
           <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-            {/* Chifres Dourados */}
             <polygon points="7,4 10,10 5,9" fill="#f1c40f" />
             <polygon points="25,4 27,9 22,10" fill="#f1c40f" />
-            {/* Asinhas */}
             <polygon points="3,13 7,16 4,21" fill="#e84118" />
             <polygon points="29,13 28,21 25,16" fill="#e84118" />
-            {/* Cabeça */}
             <rect x="6" y="9" width="20" height="16" fill="#8c7ae6" rx="3" />
-            {/* Olhos de Dragão */}
             <rect x="9" y="13" width="4" height="4" fill="#f5cd79" />
             <rect x="10" y="13" width="2" height="4" fill="#130f40" />
             <rect x="19" y="13" width="4" height="4" fill="#f5cd79" />
             <rect x="20" y="13" width="2" height="4" fill="#130f40" />
-            {/* Focinho e vaporzinho */}
             <rect x="12" y="19" width="8" height="4" fill="#7158e2" rx="1" />
             <circle cx="14" cy="20" r="1" fill="#2f3542" />
             <circle cx="18" cy="20" r="1" fill="#2f3542" />
+
+            {renderAccessoryOverlay()}
           </svg>
         );
 
       default:
-        // Padrão astronauta / fênix
         return (
           <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
             <rect x="6" y="6" width="20" height="20" fill="#fbc531" rx="4" />
             <circle cx="11" cy="14" r="2" fill="#2f3542" />
             <circle cx="21" cy="14" r="2" fill="#2f3542" />
             <path d="M13 19 Q16 22 19 19" stroke="#2f3542" strokeWidth="2" fill="none" strokeLinecap="round" />
+            {renderAccessoryOverlay()}
           </svg>
         );
+    }
+  };
+
+  // Renderiza sobreposição do acessório em pixel art
+  const renderAccessoryOverlay = () => {
+    switch (accessoryId) {
+      case 'chapeu_formatura':
+        return (
+          <g>
+            {/* Capelo no topo da cabeça */}
+            <polygon points="16,2 6,7 16,11 26,7" fill="#1e272e" />
+            <polygon points="16,2 6,7 16,11 26,7" stroke="#f1c40f" strokeWidth="0.8" />
+            <rect x="12" y="8" width="8" height="4" fill="#1e272e" />
+            <line x1="26" y1="7" x2="27" y2="14" stroke="#f1c40f" strokeWidth="1.2" />
+            <circle cx="27" cy="14" r="1.5" fill="#f1c40f" />
+          </g>
+        );
+
+      case 'coroa_ouro_pixel':
+        return (
+          <g>
+            {/* Coroa Real de Ouro */}
+            <polygon points="8,4 10,9 16,2 22,9 24,4 26,11 6,11" fill="#f1c40f" stroke="#b7950b" strokeWidth="0.8" />
+            <circle cx="16" cy="7" r="1.5" fill="#e74c3c" />
+            <circle cx="9" cy="8" r="1" fill="#3498db" />
+            <circle cx="23" cy="8" r="1" fill="#2ecc71" />
+          </g>
+        );
+
+      case 'boina_artista':
+        return (
+          <g>
+            <ellipse cx="14" cy="6" rx="9" ry="4" fill="#e74c3c" stroke="#922b21" strokeWidth="0.8" />
+            <rect x="13" y="1" width="2" height="3" fill="#922b21" />
+          </g>
+        );
+
+      case 'oculos_detetive':
+        return (
+          <g>
+            <circle cx="10" cy="16" r="4" fill="none" stroke="#f39c12" strokeWidth="1.8" />
+            <circle cx="21" cy="16" r="4" fill="none" stroke="#f39c12" strokeWidth="1.8" />
+            <line x1="14" y1="16" x2="17" y2="16" stroke="#f39c12" strokeWidth="2" />
+            <line x1="25" y1="18" x2="29" y2="22" stroke="#d35400" strokeWidth="2" />
+          </g>
+        );
+
+      case 'oculos_sol_pixel':
+        return (
+          <g>
+            <rect x="7" y="14" width="7" height="5" fill="#1e272e" rx="1" />
+            <rect x="17" y="14" width="7" height="5" fill="#1e272e" rx="1" />
+            <rect x="14" y="15" width="3" height="2" fill="#1e272e" />
+            <line x1="8" y1="15" x2="12" y2="15" stroke="#f1c40f" strokeWidth="1" />
+            <line x1="18" y1="15" x2="22" y2="15" stroke="#f1c40f" strokeWidth="1" />
+          </g>
+        );
+
+      case 'aura_estrelar':
+        return (
+          <g>
+            <circle cx="4" cy="6" r="1.5" fill="#f1c40f" className="animate-ping" />
+            <circle cx="28" cy="8" r="1.5" fill="#f1c40f" className="animate-pulse" />
+            <circle cx="16" cy="1" r="1.5" fill="#f1c40f" />
+          </g>
+        );
+
+      default:
+        return null;
     }
   };
 
