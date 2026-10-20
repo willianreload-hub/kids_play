@@ -304,7 +304,85 @@ class SoundFX {
       });
     } catch {}
   }
+
+  // Colocar bloco ou mobília na Vila dos Pets
+  public playWoodPlace() {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(90, this.ctx.currentTime + 0.08);
+
+      gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.09);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.09);
+    } catch {}
+  }
+
+  // Virar página de livro / história no Teatro dos Contos
+  public playPageFlip() {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.06);
+
+      gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.07);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.07);
+    } catch {}
+  }
+
+  // Aplausos e vivas do público 8-bit no Teatro dos Contos
+  public playApplause() {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      // 6 palminhas rápidas sintetizadas
+      [0, 0.06, 0.12, 0.18, 0.25, 0.32, 0.40].forEach((delay) => {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(300 + Math.random() * 200, this.ctx.currentTime + delay);
+        osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + delay + 0.04);
+
+        gain.gain.setValueAtTime(0.06, this.ctx.currentTime + delay);
+        gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + delay + 0.05);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(this.ctx.currentTime + delay);
+        osc.stop(this.ctx.currentTime + delay + 0.05);
+      });
+    } catch {}
+  }
 }
 
 export const sounds = new SoundFX();
-
