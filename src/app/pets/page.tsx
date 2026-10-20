@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useAuth } from '../../lib/auth-context';
 import { PET_CATALOG, ACCESSORY_CATALOG, RARITY_LABELS } from '../../lib/content-data';
 import { PetIcon } from '../../components/PetIcon';
@@ -482,6 +483,14 @@ export default function PetsPage() {
         >
           🎩 ACESSÓRIOS & LOJA
         </button>
+
+        <Link
+          href="/vila"
+          onClick={() => sounds.playClick()}
+          className="font-pixel text-xs sm:text-sm px-4 py-2 rounded-lg transition-all shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_3px_0_#065f46]"
+        >
+          🏡 VILA DOS PETS ✨
+        </Link>
       </div>
 
       {/* ============================================================== */}

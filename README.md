@@ -72,14 +72,17 @@ Projeto Kids-Player/
 │   │   ├── perfil/            # Perfil do aluno, Sala de Troféus, Streak 7 Dias, Roleta Diária e Cursors
 │   │   ├── ranking/           # Trono dos Campeões com coroa pixel art, top diário/semanal/mensal e pódio
 │   │   ├── pets/              # Álbum com 15 PETs, 16 Acessórios, Cuidados/Afeto e Baú por Pontos
+│   │   ├── vila/              # Vila Mágica dos Pets: construa e decore o lar do companheiro com moedas de estudo
 │   │   ├── missoes/           # Quests diárias dinâmicas, baús semanais e 10 conquistas
 │   │   └── responsavel/       # Painel de acompanhamento pedagógico para os pais
 │   ├── components/
 │   │   ├── CustomCursor.tsx   # Ponteiro temático retrô com faíscas e efeito tátil de clique
 │   │   ├── Navbar.tsx         # HUD de jogo: moedas, streak, nível, toggle de som e Modo Foco
+│   │   ├── ParticleTrail.tsx  # Rastro de partículas retrô que segue o cursor mágico
 │   │   ├── PetCompanion.tsx   # Assistente flutuante com balão de fala dinâmico e leitura em voz
 │   │   ├── PetIcon.tsx        # Renderizador nativo SVG em pixel art para os 15 PETs
-│   │   └── PixelButton.tsx    # Botão tátil 3D com áudio de clique embutido
+│   │   ├── PixelButton.tsx    # Botão tátil 3D com áudio de clique embutido
+│   │   └── PwaRegister.tsx    # Registro do Service Worker para instalação como app (PWA offline)
 │   └── lib/
 │       ├── types.ts           # Definições de tipos TypeScript do domínio e banco
 │       ├── supabase.ts        # Cliente Supabase com verificação de credenciais
@@ -114,6 +117,7 @@ Projeto Kids-Player/
 
 - **15 PETs Colecionáveis:** Pipoca, Bolha, Sabichão, Faísca, Cósmico, Solzinho, Trovãozinho, Gota d'Água, Lupin, Estelar, Titã de Cristal, Glub, Atena, Ignis e Flora — renderizados dinamicamente em SVG pixel-art.
 - **16 Acessórios Exclusivos:** Chapéus, óculos steampunk e VR, capas de nebulosa, asas de borboleta e auras de fogo fátuo.
+- **Vila Mágica dos Pets:** Construa e decore o lar do seu companheiro em uma grade 8×6 com 19 itens (pisos, móveis, estudos e jardim) adquiridos com as moedas conquistadas estudando.
 - **Sistema de Cuidados & Afeto:** Alimentação com frutinhas da sabedoria, carinho interativo com ronrom em 8-bit e diálogos pedagógicos com TTS.
 - **Sala de Troféus & Conquistas:** 10 conquistas categorizadas (*Estudo*, *Jogos*, *Pets*, *Hábito*) com resgate de moedas e XP.
 - **Fogo do Saber (Streak 7 Dias):** Bônus ativo de +10% de XP diário para estimular o hábito de estudo regular.

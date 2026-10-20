@@ -22,6 +22,7 @@ export function Navbar() {
   const navLinks = [
     { href: '/jogos', label: '🎮 Jogos', key: 'jogos' },
     { href: '/pets', label: '🐾 Meus PETs', key: 'pets' },
+    { href: '/vila', label: '🏡 Vila', key: 'vila' },
     { href: '/ranking', label: '🏆 Ranking', key: 'ranking' },
     { href: '/missoes', label: '🎯 Missões', key: 'missoes' },
     { href: '/perfil', label: '👤 Perfil', key: 'perfil' },
