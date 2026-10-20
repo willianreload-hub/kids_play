@@ -34,6 +34,12 @@ export default function CienciasGamePage() {
 
   const currentQ: Question = scienceQuestions[currentIndex] || scienceQuestions[0];
 
+  // Leitura em voz alta do enunciado atual
+  const handleReadQuestion = () => {
+    sounds.playClick();
+    speakText(currentQ.audio_prompt_text || currentQ.prompt, 'pt-BR');
+  };
+
   // Leitura em voz alta automática se Modo Foco com TTS ativado
   useEffect(() => {
     if (focusMode.is_active && focusMode.tts_auto_read && currentQ) {
@@ -43,11 +49,6 @@ export default function CienciasGamePage() {
       return () => clearTimeout(timer);
     }
   }, [currentIndex, focusMode.is_active]);
-
-  const handleReadQuestion = () => {
-    sounds.playClick();
-    speakText(currentQ.audio_prompt_text || currentQ.prompt, 'pt-BR');
-  };
 
   const handleSelectOption = (optionText: string, optionId: string) => {
     if (isAnswered) return;

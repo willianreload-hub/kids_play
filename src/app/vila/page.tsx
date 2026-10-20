@@ -58,6 +58,14 @@ const GRID_COLS = 8;
 const GRID_ROWS = 6;
 const TOTAL_TILES = GRID_COLS * GRID_ROWS;
 
+// Abas do catálogo de construção da vila
+const CATEGORY_TABS: { id: 'pisos' | 'moveis' | 'estudo' | 'jardim'; label: string }[] = [
+  { id: 'moveis', label: '🪑 Móveis' },
+  { id: 'estudo', label: '📚 Estudos' },
+  { id: 'pisos', label: '🧱 Pisos' },
+  { id: 'jardim', label: '🌸 Jardim' },
+];
+
 // Itens que já vêm no kit inicial da vila (a criança possui tudo do modelo padrão)
 const DEFAULT_LAYOUT_OWNED = [
   'floor_madeira', 'floor_pedra', 'item_cama', 'item_tigela',
@@ -422,19 +430,14 @@ export default function VilaPage() {
 
           {/* CATEGORIAS */}
           <div className="grid grid-cols-2 gap-1.5 mb-4">
-            {[
-              { id: 'moveis', label: '🪑 Móveis' },
-              { id: 'estudo', label: '📚 Estudos' },
-              { id: 'pisos', label: '🧱 Pisos' },
-              { id: 'jardim', label: '🌸 Jardim' },
-            ].map(cat => (
+            {CATEGORY_TABS.map(cat => (
               <button
                 key={cat.id}
                 type="button"
                 onClick={() => {
                   sounds.playClick();
                   setIsEraser(false);
-                  setActiveCategory(cat.id as any);
+                  setActiveCategory(cat.id);
                 }}
                 className={`py-2 px-3 rounded-lg font-pixel text-[10px] border transition-all ${
                   !isEraser && activeCategory === cat.id

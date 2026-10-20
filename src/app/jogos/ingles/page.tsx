@@ -31,6 +31,12 @@ export default function InglesGamePage() {
   const wordList = ENGLISH_VOCABULARY;
   const currentItem: EnglishWordItem = wordList[currentIndex] || wordList[0];
 
+  // Reproduzir áudio nativo em inglês com voz infantil calibrada
+  const handlePlayAudio = () => {
+    sounds.playClick();
+    speakText(currentItem.word, 'en-US');
+  };
+
   // Auto-leitura ao abrir se Modo Foco com TTS ativo
   useEffect(() => {
     if (focusMode.is_active && focusMode.tts_auto_read) {
@@ -40,12 +46,6 @@ export default function InglesGamePage() {
       return () => clearTimeout(timer);
     }
   }, [currentIndex, focusMode.is_active]);
-
-  // Reproduzir áudio nativo em inglês com voz infantil calibrada
-  const handlePlayAudio = () => {
-    sounds.playClick();
-    speakText(currentItem.word, 'en-US');
-  };
 
   // Reproduzir frase de exemplo
   const handlePlaySentence = () => {
@@ -318,7 +318,7 @@ export default function InglesGamePage() {
             </p>
 
             <p className="text-xs sm:text-sm text-slate-400">
-              Pronúncia amigável: <strong className="text-slate-200 tracking-wider">"{currentItem.phoneticHelp}"</strong>
+              Pronúncia amigável: <strong className="text-slate-200 tracking-wider">&ldquo;{currentItem.phoneticHelp}&rdquo;</strong>
             </p>
           </div>
 
@@ -392,7 +392,7 @@ export default function InglesGamePage() {
             {/* FEEDBACK DE TENTAR DE NOVO */}
             {feedbackState === 'retry' && (
               <div className="text-xs text-amber-300 bg-amber-950/60 border border-amber-800 p-2.5 rounded-lg max-w-md mx-auto mb-3">
-                💡 Quase lá! Clique em ouvir <Volume2 size={14} className="inline" /> e tente repetir com calma: "{currentItem.phoneticHelp}"!
+                💡 Quase lá! Clique em ouvir <Volume2 size={14} className="inline" /> e tente repetir com calma: &ldquo;{currentItem.phoneticHelp}&rdquo;!
               </div>
             )}
 

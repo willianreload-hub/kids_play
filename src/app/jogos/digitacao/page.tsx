@@ -44,6 +44,7 @@ export default function DigitacaoGamePage() {
   const [totalKeystrokes, setTotalKeystrokes] = useState(0);
   const [correctKeystrokes, setCorrectKeystrokes] = useState(0);
   const [startTime, setStartTime] = useState<number | null>(null);
+  const [elapsedMs, setElapsedMs] = useState(0);
   const [speedMode, setSpeedMode] = useState<'calmo' | 'normal' | 'turbo'>('calmo');
   const [stars, setStars] = useState(0);
   const [pointsEarned, setPointsEarned] = useState(0);
@@ -59,6 +60,13 @@ export default function DigitacaoGamePage() {
   useEffect(() => {
     inputRef.current?.focus();
   }, [currentIndex, isCompletedSession]);
+
+  // Cronômetro ao vivo para o medidor de WPM (Date.now só roda no callback do intervalo, nunca na renderização)
+  useEffect(() => {
+    if (startTime === null) return;
+    const id = setInterval(() => setElapsedMs(Date.now() - startTime), 1000);
+    return () => clearInterval(id);
+  }, [startTime]);
 
   // Captura de digitação física
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -132,7 +140,6 @@ export default function DigitacaoGamePage() {
   // Clique na tecla virtual na tela (Touch / Mouse)
   const handleVirtualKeyClick = (char: string) => {
     if (isCompletedSession) return;
-    if (!startTime) setStartTime(Date.now());
 
     setTotalKeystrokes(prev => prev + 1);
 
@@ -175,7 +182,7 @@ export default function DigitacaoGamePage() {
 
   // Cálculo de Precisão e WPM calibrado para crianças
   const accuracy = totalKeystrokes > 0 ? Math.round((correctKeystrokes / totalKeystrokes) * 100) : 100;
-  const timeElapsedMinutes = startTime ? (Date.now() - startTime) / 60000 : 0.1;
+  const timeElapsedMinutes = startTime ? Math.max(elapsedMs, 1000) / 60000 : 0.1;
   const wordsTyped = (currentIndex * 5 + typedChars.length) / 5;
   const wpm = timeElapsedMinutes > 0 ? Math.min(60, Math.round(wordsTyped / timeElapsedMinutes)) : 0;
 
@@ -186,6 +193,7 @@ export default function DigitacaoGamePage() {
     setTotalKeystrokes(0);
     setCorrectKeystrokes(0);
     setStartTime(null);
+    setElapsedMs(0);
     setStars(0);
     setPointsEarned(0);
     setIsCompletedSession(false);
@@ -346,7 +354,10 @@ export default function DigitacaoGamePage() {
                       <button
                         key={k}
                         type="button"
-                        onClick={() => handleVirtualKeyClick(k)}
+                        onClick={() => {
+                          if (!startTime) setStartTime(Date.now());
+                          handleVirtualKeyClick(k);
+                        }}
                         className={`w-7 h-9 sm:w-11 sm:h-12 rounded-lg font-pixel text-xs sm:text-sm border-2 transition-all flex items-center justify-center ${
                           isTargetKey
                             ? 'bg-amber-400 border-yellow-200 text-slate-950 scale-110 shadow-[0_0_12px_rgba(251,191,36,0.8)] font-bold animate-bounce-subtle'

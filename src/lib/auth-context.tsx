@@ -72,6 +72,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isDemo, setIsDemo] = useState(false);
   const [, startTransition] = useTransition();
 
+  // Entra no modo demonstração local (usado quando o Supabase não está configurado)
+  const loginAsDemo = (nickname: string = 'Super Aluno', grade: SchoolGrade = 3) => {
+    const demoProf: StudentProfile = {
+      id: 'demo-student-01',
+      nickname,
+      school_grade: grade,
+      avatar_preset: 'astro_kid',
+      level: 1,
+      xp: 25,
+      points: 350,
+      streak_days: 3,
+    };
+    const defaultPet = PET_CATALOG[0]; // Pipoca
+    const initialUserPets: UserPet[] = [
+      {
+        id: `up-${defaultPet.id}`,
+        student_id: demoProf.id,
+        pet_id: defaultPet.id,
+        nickname: defaultPet.name,
+        level: 1,
+        evolution_fragments: 15,
+        is_active: true,
+        pet: defaultPet,
+      },
+    ];
+
+    setProfile(demoProf);
+    setActivePetState(defaultPet);
+    setUserPets(initialUserPets);
+    setIsDemo(true);
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('kids_profile', JSON.stringify(demoProf));
+      localStorage.setItem('kids_active_pet_id', defaultPet.id);
+      localStorage.setItem('kids_user_pets', JSON.stringify(initialUserPets));
+    }
+  };
+
   // Carrega estado salvo do localStorage ou Supabase
   useEffect(() => {
     async function initAuth() {
@@ -463,43 +501,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       return updated;
     });
-  };
-
-  const loginAsDemo = (nickname: string = 'Super Aluno', grade: SchoolGrade = 3) => {
-    const demoProf: StudentProfile = {
-      id: 'demo-student-01',
-      nickname,
-      school_grade: grade,
-      avatar_preset: 'astro_kid',
-      level: 1,
-      xp: 25,
-      points: 350,
-      streak_days: 3,
-    };
-    const defaultPet = PET_CATALOG[0]; // Pipoca
-    const initialUserPets: UserPet[] = [
-      {
-        id: `up-${defaultPet.id}`,
-        student_id: demoProf.id,
-        pet_id: defaultPet.id,
-        nickname: defaultPet.name,
-        level: 1,
-        evolution_fragments: 15,
-        is_active: true,
-        pet: defaultPet,
-      },
-    ];
-
-    setProfile(demoProf);
-    setActivePetState(defaultPet);
-    setUserPets(initialUserPets);
-    setIsDemo(true);
-
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('kids_profile', JSON.stringify(demoProf));
-      localStorage.setItem('kids_active_pet_id', defaultPet.id);
-      localStorage.setItem('kids_user_pets', JSON.stringify(initialUserPets));
-    }
   };
 
   const signUpStudent = async (params: SignUpParams): Promise<{ success: boolean; error?: string }> => {

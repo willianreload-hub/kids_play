@@ -12,6 +12,12 @@ interface ClickRipple {
   color: string;
 }
 
+declare global {
+  interface WindowEventMap {
+    'change_cursor_theme': CustomEvent<CursorTheme>;
+  }
+}
+
 export function CustomCursor() {
   const { focusMode } = useAuth();
   const [pos, setPos] = useState({ x: -100, y: -100 });
@@ -31,10 +37,10 @@ export function CustomCursor() {
       const handleThemeChange = (e: CustomEvent<CursorTheme>) => {
         setTheme(e.detail);
       };
-      window.addEventListener('change_cursor_theme' as any, handleThemeChange);
+      window.addEventListener('change_cursor_theme', handleThemeChange);
 
       return () => {
-        window.removeEventListener('change_cursor_theme' as any, handleThemeChange);
+        window.removeEventListener('change_cursor_theme', handleThemeChange);
       };
     }
   }, []);
