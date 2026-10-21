@@ -92,6 +92,7 @@ export function PwaRegister() {
           type="button"
           onClick={() => setIsDismissed(true)}
           className="text-slate-400 hover:text-white p-1"
+          aria-label="Fechar aviso de instalação do aplicativo"
         >
           <X size={14} />
         </button>

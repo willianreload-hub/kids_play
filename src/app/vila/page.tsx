@@ -309,6 +309,7 @@ export default function VilaPage() {
             onClick={handleResetVillage}
             className="p-2 bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 text-slate-300 hover:text-white rounded-xl transition-all"
             title="Recriar Modelo Inicial"
+            aria-label="Recriar modelo inicial da vila"
           >
             <RotateCcw size={16} />
           </button>
@@ -329,6 +330,7 @@ export default function VilaPage() {
                 onClick={handlePetPet}
                 className="w-12 h-12 shrink-0 bg-slate-800 p-1 rounded-xl border border-amber-400/80 hover:scale-105 transition-transform relative"
                 title="Fazer Carinho no Pet"
+                aria-label="Fazer carinho no pet"
               >
                 <PetIcon petId={activePet?.id || 'pipoca_raposa'} size={40} />
                 {showHearts && (

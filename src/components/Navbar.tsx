@@ -120,6 +120,7 @@ export function Navbar() {
               onClick={handleToggleSound}
               className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border-2 border-slate-700 transition-colors"
               title={isMuted ? 'Desmutar sons retrô' : 'Mutar sons'}
+              aria-label={isMuted ? 'Desmutar sons do jogo' : 'Mutar sons do jogo'}
             >
               {isMuted ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
             </button>
@@ -148,6 +149,7 @@ export function Navbar() {
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="lg:hidden p-2 rounded-lg bg-slate-800 text-slate-200 border-2 border-slate-700"
+              aria-label={mobileMenuOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação'}
             >
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>

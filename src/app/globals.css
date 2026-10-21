@@ -289,4 +289,10 @@ body.custom-cursor-active * {
   box-shadow: 0 0 15px rgba(244, 63, 94, 0.4), inset 0 0 10px rgba(244, 63, 94, 0.2);
 }
 
+/* Acessibilidade: foco visível para navegação por teclado (contraste AA com o tema escuro) */
+:focus-visible {
+  outline: 3px solid #fbbf24;
+  outline-offset: 2px;
+}
+
 
