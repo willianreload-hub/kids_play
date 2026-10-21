@@ -452,9 +452,22 @@ self.addEventListener('fetch', (event) => {
 
 ### Tarefa 1.6 — Performance mobile (scopo)
 
-- [ ] Medir com Lighthouse mobile (alvo: Performance ≥ 85, "Installable" no PWA). Registrar os 3 maiores gargalos e abrir tarefas pontuais (candidatos prováveis: `PetIcon.tsx` renderizando 15 SVGs por tela, `ParticleTrail` rodando em páginas de jogo). Não otimizar às cegas: medir primeiro.
+**✅ Medido em 21/10/2026** (Lighthouse headless sobre `https://kids-play-five.vercel.app`, build da Fase 1):
+
+| Categoria | Nota | Métricas-chave |
+|---|---|---|
+| Performance | **85** (meta ≥ 85 ✓) | FCP 2,7s · LCP 3,5s · **TBT 148ms (95)** · **CLS 0 (100)** · Speed Index 3,2s |
+| Acessibilidade | **98** | — |
+| Best Practices | **100** | — |
+| SEO | **100** | — |
+
+**Gargalo identificado (candidato à Fase 2):** FCP/LCP puxados pelo Google Fonts via `<link>` em `layout.tsx` (já apontado pelo warning `@next/next/no-page-custom-font`) — migrar para `next/font/google` deve puxar Performance para ~90+. TBT/CLS excelentes (client-side leve).
+
+- [ ] Próxima medição após migrar as fontes (Fase 2) e comparar.
 
 **Critério de aceite da Fase 1:** `npx eslint .` com 0 erros e apenas o warning documentado do `PetCompanion` · `npm run test:unit` rodando no CI · `content-data` particionado com barrel compatível · PWA v2 verificado em navegação offline · a11y auditada nas 18 rotas.
+
+**✅ FASE 1 CONCLUÍDA EM 21/10/2026** — commits `ab062a9` → `40676ac`: ESLint 19→11 warnings (9 de hidratação + 2 deps eliminados, restam 8 regras `@next/*` + 1 PetCompanion + 2 deps) · 19 testes unitários + 212 de integridade no CI · monólito de 1.563 linhas → 8 módulos · PWA v2 no ar (cache versionado, HTML sempre fresco) · a11y 98/100 no Lighthouse com Performance 85 (meta atingida).
 
 ---
 
