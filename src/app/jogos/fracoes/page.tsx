@@ -177,22 +177,21 @@ export default function FracoesGamePage() {
   const [score, setScore] = useState(0);
   const [totalCoinsWon, setTotalCoinsWon] = useState(0);
   const [gameFinished, setGameFinished] = useState(false);
-  const [interactiveFilled, setInteractiveFilled] = useState<number | null>(null);
+  const [interactiveFilled, setInteractiveFilled] = useState<number | null>(() =>
+    CHALLENGES[0].slicesFilled ?? null
+  );
 
   const currentCh = CHALLENGES[currentIndex];
 
+  // Leitura em voz alta do desafio atual se Modo Foco com TTS ativado
   useEffect(() => {
-    setInteractiveFilled(currentCh.slicesFilled ?? null);
-    setSelectedOptionId(null);
-    setFeedback(null);
-
     if (focusMode.is_active && focusMode.tts_auto_read && currentCh) {
       const timer = setTimeout(() => {
         speakText(currentCh.audioPrompt || currentCh.prompt, 'pt-BR');
       }, 350);
       return () => clearTimeout(timer);
     }
-  }, [currentIndex, currentCh, focusMode.is_active, focusMode.tts_auto_read]);
+  }, [currentCh, focusMode.is_active, focusMode.tts_auto_read]);
 
   const handleListen = () => {
     sounds.playClick();
@@ -245,6 +244,11 @@ export default function FracoesGamePage() {
   const handleNextChallenge = () => {
     sounds.playClick();
     if (currentIndex + 1 < CHALLENGES.length) {
+      // Reset da rodada (antes acontecia num efeito ao trocar de índice)
+      const nextCh = CHALLENGES[currentIndex + 1];
+      setInteractiveFilled(nextCh.slicesFilled ?? null);
+      setSelectedOptionId(null);
+      setFeedback(null);
       setCurrentIndex(prev => prev + 1);
     } else {
       setGameFinished(true);
@@ -264,6 +268,9 @@ export default function FracoesGamePage() {
     setScore(0);
     setTotalCoinsWon(0);
     setGameFinished(false);
+    setInteractiveFilled(CHALLENGES[0].slicesFilled ?? null);
+    setSelectedOptionId(null);
+    setFeedback(null);
   };
 
   // Renderizador SVG da pizza/círculo fracionado

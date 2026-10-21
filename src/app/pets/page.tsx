@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../../lib/auth-context';
 import { PET_CATALOG, ACCESSORY_CATALOG, RARITY_LABELS } from '../../lib/content-data';
@@ -10,6 +10,7 @@ import { sounds } from '../../lib/sound-effects';
 import { Pet, PetRarity } from '../../lib/types';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { speakText, stopSpeaking } from '../../lib/speech';
+import { useLocalStorageState } from '../../lib/client-hooks';
 import {
   Sparkles, Gift, Check, Lock,
   ArrowUpCircle, ShoppingBag, ShieldCheck, Heart,
@@ -41,7 +42,10 @@ export default function PetsPage() {
   const [actionNotice, setActionNotice] = useState<string | null>(null);
 
   // Estados do Sistema de Carinho & Cuidados 2.0
-  const [petAffection, setPetAffection] = useState<number>(70);
+  // Afeto do pet ativo persistido por pet (hidratação via hook, sem setState-in-effect)
+  const affectionKey = `kids_player_pet_affection_${activePet?.id ?? 'none'}`;
+  const [savedAffection, setSavedAffection] = useLocalStorageState<number>(affectionKey, 70);
+  const petAffection = savedAffection;
   const [petMood, setPetMood] = useState<'idle' | 'happy' | 'sad'>('idle');
   const [petPhrase, setPetPhrase] = useState<string>(
     'Olá, amiguinho! Que bom ter você aqui. Fazer carinho e me alimentar me deixa muito feliz para estudar!'
@@ -49,27 +53,13 @@ export default function PetsPage() {
   const [floatingHearts, setFloatingHearts] = useState<{ id: number; left: number; top: number; symbol: string }[]>([]);
   const [isPetting, setIsPetting] = useState(false);
 
-  // Sincronizar Afeto do Pet Ativo
-  useEffect(() => {
-    if (activePet) {
-      const savedAffection = localStorage.getItem(`kids_player_pet_affection_${activePet.id}`);
-      if (savedAffection !== null) {
-        setPetAffection(Number(savedAffection));
-      } else {
-        setPetAffection(70);
-      }
-      setPetPhrase(`Olá! Eu sou o ${activePet.name}! Estou super animado para te acompanhar nas lições de hoje!`);
-    }
-  }, [activePet]);
-
   const updateAffection = (delta: number) => {
-    setPetAffection(prev => {
-      const nextVal = Math.min(100, Math.max(0, prev + delta));
-      if (activePet) {
-        localStorage.setItem(`kids_player_pet_affection_${activePet.id}`, String(nextVal));
-      }
-      return nextVal;
-    });
+    setSavedAffection(prev => Math.min(100, Math.max(0, prev + delta)));
+  };
+
+  // Saudação exibida ao trocar de companheiro ativo (chamada nos handlers de troca)
+  const greetNewPet = (petName: string) => {
+    setPetPhrase(`Olá! Eu sou o ${petName}! Estou super animado para te acompanhar nas lições de hoje!`);
   };
 
   const spawnFloatingParticles = (symbol: string, count = 5) => {
@@ -405,6 +395,7 @@ export default function PetsPage() {
                 onClick={() => {
                   sounds.playClick();
                   setActivePet(wonPet.pet);
+                  greetNewPet(wonPet.pet.name);
                   setWonPet(null);
                 }}
               >
@@ -676,6 +667,7 @@ export default function PetsPage() {
                     onClick={() => {
                       sounds.playClick();
                       setActivePet(pet);
+                      greetNewPet(pet.name);
                     }}
                     className={`p-3 rounded-xl border-2 flex flex-col items-center text-center transition-all ${
                       isSelected
@@ -802,6 +794,7 @@ export default function PetsPage() {
                         onClick={() => {
                           sounds.playSuccess();
                           setActivePet(pet);
+                          greetNewPet(pet.name);
                         }}
                       >
                         {isActive ? 'COMPANHEIRO ATIVO ⭐' : 'ESCOLHER COMO ATIVO'}

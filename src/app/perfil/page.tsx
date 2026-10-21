@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../../lib/auth-context';
 import { AVATAR_PRESETS, ACHIEVEMENTS_CATALOG } from '../../lib/content-data';
 import { PixelButton } from '../../components/PixelButton';
 import { PetIcon } from '../../components/PetIcon';
 import { sounds } from '../../lib/sound-effects';
 import { validateNickname } from '../../lib/nickname-moderator';
+import { useLocalStorageState } from '../../lib/client-hooks';
 import {
   Shield, Flame, Heart,
   LogOut, Check, Sparkles,
@@ -30,7 +31,7 @@ export default function PerfilPage() {
   const [isEditingNick, setIsEditingNick] = useState(false);
   const [newNick, setNewNick] = useState(profile?.nickname || '');
   const [nickError, setNickError] = useState('');
-  const [selectedCursor, setSelectedCursor] = useState<string>('varinha');
+  const [selectedCursor, setSelectedCursor] = useLocalStorageState<string>('kids_cursor_theme', 'varinha');
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   // Conquistas e Roleta Diária
@@ -42,21 +43,16 @@ export default function PerfilPage() {
     return ['ach_first_win'];
   });
 
-  const [hasSpunToday, setHasSpunToday] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
   const [spinReward, setSpinReward] = useState<number | null>(null);
   const [achFilter, setAchFilter] = useState<string>('todos');
 
-  // Verificar se já girou a roleta hoje
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const today = new Date().toISOString().slice(0, 10);
-      const lastSpin = localStorage.getItem('kids_player_last_spin_date');
-      if (lastSpin === today) {
-        setHasSpunToday(true);
-      }
-    }
-  }, []);
+  // Roleta diária: data do último giro persistida via hook (sem setState-in-effect)
+  const [lastSpinDate, setLastSpinDate] = useLocalStorageState<string | null>(
+    'kids_player_last_spin_date',
+    null
+  );
+  const hasSpunToday = lastSpinDate === new Date().toISOString().slice(0, 10);
 
   const handleSpinWheel = () => {
     if (hasSpunToday || isSpinning) return;
@@ -68,15 +64,12 @@ export default function PerfilPage() {
       const won = rewards[Math.floor(Math.random() * rewards.length)];
       setSpinReward(won);
       setIsSpinning(false);
-      setHasSpunToday(true);
       addPoints(won, 'roleta_diaria_sabedoria');
       sounds.playCoin();
       sounds.playLevelUp();
 
-      if (typeof window !== 'undefined') {
-        const today = new Date().toISOString().slice(0, 10);
-        localStorage.setItem('kids_player_last_spin_date', today);
-      }
+      const today = new Date().toISOString().slice(0, 10);
+      setLastSpinDate(today);
 
       confetti({
         particleCount: 50,
@@ -129,21 +122,10 @@ export default function PerfilPage() {
     setTimeout(() => setSavedSuccess(false), 2000);
   };
 
-  // Inicializa cursor do localStorage
-  React.useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('kids_cursor_theme');
-      if (saved) setSelectedCursor(saved);
-    }
-  }, []);
-
   const handleSelectCursor = (themeId: string) => {
     sounds.playClick();
     setSelectedCursor(themeId);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('kids_cursor_theme', themeId);
-      window.dispatchEvent(new CustomEvent('change_cursor_theme', { detail: themeId }));
-    }
+    window.dispatchEvent(new CustomEvent('change_cursor_theme', { detail: themeId }));
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 2000);
   };
