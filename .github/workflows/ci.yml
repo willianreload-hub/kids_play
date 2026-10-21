@@ -19,6 +19,8 @@ jobs:
         run: npx eslint . --max-warnings 20
       - name: TypeScript
         run: npx tsc --noEmit
+      - name: Suíte unitária (lógica pura)
+        run: npm run test:unit
       - name: Integridade de conteúdo (212 checks)
         run: npm test
       - name: Build de produção

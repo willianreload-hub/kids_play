@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "test": "tsx tests/integrity-suite.ts",
+    "test:unit": "tsx tests/unit-suite.ts",
     "test:routes": "node tests/smoke-routes.mjs"
   },
   "dependencies": {

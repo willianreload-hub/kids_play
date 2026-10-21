@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../../../lib/auth-context';
 import { sounds } from '../../../lib/sound-effects';
+import { calcWpm } from '../../../lib/game-logic';
 import { PixelButton } from '../../../components/PixelButton';
 import { PetIcon } from '../../../components/PetIcon';
 import {
@@ -179,11 +180,10 @@ export default function DigitacaoGamePage() {
     }
   };
 
-  // Cálculo de Precisão e WPM calibrado para crianças
+  // Cálculo de Precisão e WPM calibrado para crianças (helper puro testado)
   const accuracy = totalKeystrokes > 0 ? Math.round((correctKeystrokes / totalKeystrokes) * 100) : 100;
-  const timeElapsedMinutes = startTime ? Math.max(elapsedMs, 1000) / 60000 : 0.1;
   const wordsTyped = (currentIndex * 5 + typedChars.length) / 5;
-  const wpm = timeElapsedMinutes > 0 ? Math.min(60, Math.round(wordsTyped / timeElapsedMinutes)) : 0;
+  const wpm = startTime ? calcWpm(wordsTyped, elapsedMs) : 0;
 
   const handleRestart = () => {
     sounds.playClick();
