@@ -2,10 +2,10 @@
 
 import React, { useState, useMemo } from 'react';
 import { useAuth } from '../../lib/auth-context';
-import { 
-  Crown, Sparkles, Trophy, Medal, Flame, Star, 
-  Shield, Heart, Award, ArrowUp, CheckCircle, Camera, 
-  Smile, UserCheck, Info, BarChart3, TrendingUp, Zap
+import {
+  Crown, Sparkles, Trophy, Medal, Flame, Star,
+  Shield, Heart, Award, CheckCircle, Camera,
+  Smile, BarChart3, TrendingUp, Zap
 } from 'lucide-react';
 import { sounds } from '../../lib/sound-effects';
 import { AVATAR_PRESETS, PET_CATALOG } from '../../lib/content-data';

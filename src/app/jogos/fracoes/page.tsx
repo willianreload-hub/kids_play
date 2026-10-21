@@ -7,9 +7,9 @@ import { PixelButton } from '../../../components/PixelButton';
 import { PetIcon } from '../../../components/PetIcon';
 import { sounds } from '../../../lib/sound-effects';
 import { speakText, stopSpeaking } from '../../../lib/speech';
-import { 
-  ArrowLeft, Sparkles, Volume2, Trophy, RotateCcw, 
-  FlaskConical, Check, Zap, Scale, Ruler, Droplet, Star
+import {
+  ArrowLeft, Sparkles, Volume2, Trophy, RotateCcw,
+  FlaskConical, Check, Zap, Scale, Ruler, Droplet
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -167,7 +167,7 @@ const CHALLENGES: FractionChallenge[] = [
 ];
 
 export default function FracoesGamePage() {
-  const { profile, activePet, focusMode, addPoints } = useAuth();
+  const { activePet, focusMode, addPoints } = useAuth();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
@@ -192,7 +192,7 @@ export default function FracoesGamePage() {
       }, 350);
       return () => clearTimeout(timer);
     }
-  }, [currentIndex, focusMode.is_active, focusMode.tts_auto_read]);
+  }, [currentIndex, currentCh, focusMode.is_active, focusMode.tts_auto_read]);
 
   const handleListen = () => {
     sounds.playClick();

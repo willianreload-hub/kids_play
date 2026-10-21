@@ -5,18 +5,18 @@ import Link from 'next/link';
 import { useAuth } from '../../../lib/auth-context';
 import { QUESTION_BANK } from '../../../lib/content-data';
 import { Question } from '../../../lib/types';
-import { speakText, stopSpeaking } from '../../../lib/speech';
+import { speakText } from '../../../lib/speech';
 import { sounds } from '../../../lib/sound-effects';
 import { PixelButton } from '../../../components/PixelButton';
 import { PetIcon } from '../../../components/PetIcon';
-import { 
-  FlaskConical, Sparkles, Volume2, CheckCircle2, XCircle, 
-  ArrowRight, ShieldCheck, Star, Award, Compass, Search, Atom
+import {
+  Volume2, CheckCircle2, XCircle,
+  ArrowRight, ShieldCheck, Star, Atom
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export default function CienciasGamePage() {
-  const { profile, activePet, focusMode, addPoints } = useAuth();
+  const { activePet, focusMode, addPoints } = useAuth();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
@@ -48,7 +48,7 @@ export default function CienciasGamePage() {
       }, 400);
       return () => clearTimeout(timer);
     }
-  }, [currentIndex, focusMode.is_active]);
+  }, [currentIndex, currentQ, focusMode.is_active, focusMode.tts_auto_read]);
 
   const handleSelectOption = (optionText: string, optionId: string) => {
     if (isAnswered) return;

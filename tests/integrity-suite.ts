@@ -1,10 +1,8 @@
-import { 
-  QUESTION_BANK, 
-  PET_CATALOG, 
-  ACCESSORY_CATALOG, 
-  ACHIEVEMENTS_CATALOG, 
-  SUBJECTS, 
-  AVATAR_PRESETS 
+import {
+  QUESTION_BANK,
+  PET_CATALOG,
+  ACCESSORY_CATALOG,
+  ACHIEVEMENTS_CATALOG
 } from '../src/lib/content-data';
 import { validateNickname } from '../src/lib/nickname-moderator';
 import * as fs from 'fs';

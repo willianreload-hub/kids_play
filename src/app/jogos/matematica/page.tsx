@@ -9,9 +9,9 @@ import { PixelButton } from '../../../components/PixelButton';
 import { PetIcon } from '../../../components/PetIcon';
 import { sounds } from '../../../lib/sound-effects';
 import { speakText, stopSpeaking } from '../../../lib/speech';
-import { 
-  Volume2, ArrowLeft, Trophy, Sparkles, Check, 
-  RotateCcw, ShieldCheck, Heart, Coffee 
+import {
+  Volume2, ArrowLeft, Trophy,
+  RotateCcw, ShieldCheck, Coffee
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 

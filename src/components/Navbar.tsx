@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../lib/auth-context';
 import { sounds } from '../lib/sound-effects';
-import { Volume2, VolumeX, Flame, Coins, ShieldCheck, Sparkles, Menu, X, User } from 'lucide-react';
+import { Volume2, VolumeX, Flame, Coins, ShieldCheck, Sparkles, Menu, X } from 'lucide-react';
 
 export function Navbar() {
   const pathname = usePathname();

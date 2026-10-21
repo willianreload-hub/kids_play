@@ -4,18 +4,18 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../../../lib/auth-context';
 import { ENGLISH_VOCABULARY, EnglishWordItem } from '../../../lib/content-data';
-import { speakText, stopSpeaking, startVoiceRecognition, isSpeechRecognitionSupported } from '../../../lib/speech';
+import { speakText, startVoiceRecognition, isSpeechRecognitionSupported } from '../../../lib/speech';
 import { sounds } from '../../../lib/sound-effects';
 import { PixelButton } from '../../../components/PixelButton';
 import { PetIcon } from '../../../components/PetIcon';
-import { 
-  Volume2, Mic, MicOff, Sparkles, CheckCircle, RotateCcw, 
-  ArrowRight, ShieldCheck, Heart, Coffee, Star, Award, HelpCircle
+import {
+  Volume2, Mic,
+  ArrowRight, ShieldCheck, Star, Award
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export default function InglesGamePage() {
-  const { profile, activePet, focusMode, addPoints, updateQuestProgress } = useAuth();
+  const { activePet, focusMode, addPoints, updateQuestProgress } = useAuth();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isListening, setIsListening] = useState(false);
@@ -45,7 +45,7 @@ export default function InglesGamePage() {
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [currentIndex, focusMode.is_active]);
+  }, [currentIndex, currentItem, focusMode.is_active, focusMode.tts_auto_read]);
 
   // Reproduzir frase de exemplo
   const handlePlaySentence = () => {

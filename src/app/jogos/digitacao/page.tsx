@@ -6,9 +6,9 @@ import { useAuth } from '../../../lib/auth-context';
 import { sounds } from '../../../lib/sound-effects';
 import { PixelButton } from '../../../components/PixelButton';
 import { PetIcon } from '../../../components/PetIcon';
-import { 
-  Keyboard, Star, Sparkles, Award, ArrowRight, ShieldCheck, 
-  RotateCcw, Zap, Target, Gauge, Heart
+import {
+  Star, Award, ShieldCheck,
+  Target, Gauge
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -37,7 +37,7 @@ const KEYBOARD_ROWS = [
 ];
 
 export default function DigitacaoGamePage() {
-  const { profile, activePet, focusMode, addPoints } = useAuth();
+  const { activePet, focusMode, addPoints } = useAuth();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [typedChars, setTypedChars] = useState('');
@@ -45,7 +45,6 @@ export default function DigitacaoGamePage() {
   const [correctKeystrokes, setCorrectKeystrokes] = useState(0);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedMs, setElapsedMs] = useState(0);
-  const [speedMode, setSpeedMode] = useState<'calmo' | 'normal' | 'turbo'>('calmo');
   const [stars, setStars] = useState(0);
   const [pointsEarned, setPointsEarned] = useState(0);
   const [isCompletedSession, setIsCompletedSession] = useState(false);

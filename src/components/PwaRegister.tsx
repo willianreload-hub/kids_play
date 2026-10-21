@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Download, Sparkles, X } from 'lucide-react';
+import { Download, X } from 'lucide-react';
 import { sounds } from '../lib/sound-effects';
 
 interface BeforeInstallPromptEvent extends Event {

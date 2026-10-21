@@ -1,16 +1,15 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../../lib/auth-context';
 import { SUBJECTS } from '../../lib/content-data';
 import { PixelButton } from '../../components/PixelButton';
-import { PetIcon } from '../../components/PetIcon';
 import { sounds } from '../../lib/sound-effects';
-import { 
-  Calculator, BookOpen, FlaskConical, Compass, Mic, Keyboard, 
-  Gamepad2, Sparkles, Trophy, ArrowRight, ShieldCheck, Play,
-  Map, Award, Rocket, CheckCircle2, Star, Gift, Lock
+import {
+  Calculator, BookOpen, FlaskConical, Compass, Mic, Keyboard,
+  Gamepad2, ShieldCheck, Play,
+  CheckCircle2, Gift, Lock
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -24,7 +23,7 @@ interface PassTier {
 }
 
 export default function JogosPage() {
-  const { profile, activePet, focusMode, addPoints, equippedAccessoryId } = useAuth();
+  const { profile, focusMode, addPoints } = useAuth();
   const [selectedGrade, setSelectedGrade] = useState<3 | 4>(profile?.school_grade || 3);
   const [activeTab, setActiveTab] = useState<'materias' | 'minijogos' | 'mapa' | 'passe'>('materias');
 

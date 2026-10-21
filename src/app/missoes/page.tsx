@@ -4,12 +4,11 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../../lib/auth-context';
 import { ACHIEVEMENTS_CATALOG } from '../../lib/content-data';
-import { AchievementItem } from '../../lib/types';
 import { PixelButton } from '../../components/PixelButton';
 import { sounds } from '../../lib/sound-effects';
-import { 
-  Target, Flame, Gift, Trophy, CheckCircle, Clock, 
-  Sparkles, Shield, ArrowRight, Star, Award, CheckCircle2
+import {
+  Target, Flame, Gift, Trophy,
+  Sparkles, CheckCircle2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 

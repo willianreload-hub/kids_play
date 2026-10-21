@@ -5,13 +5,12 @@ import Link from 'next/link';
 import { useAuth } from '../../../lib/auth-context';
 import { QUESTION_BANK } from '../../../lib/content-data';
 import { Question } from '../../../lib/types';
-import { PixelButton } from '../../../components/PixelButton';
 import { PetIcon } from '../../../components/PetIcon';
 import { sounds } from '../../../lib/sound-effects';
 import { speakText, stopSpeaking } from '../../../lib/speech';
-import { 
-  ArrowLeft, Compass, Trees, Award, Volume2, 
-  Check, Sparkles, MapPin, ShieldCheck, Heart 
+import {
+  ArrowLeft, Compass, Award, Volume2,
+  Check
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -160,7 +159,7 @@ const BRAZIL_BIOMES: BiomeInfo[] = [
 ];
 
 export default function BiomasDoBrasilPage() {
-  const { profile, activePet, focusMode, addPoints, updateQuestProgress, equippedAccessoryId } = useAuth();
+  const { activePet, focusMode, addPoints, updateQuestProgress, equippedAccessoryId } = useAuth();
   
   const [selectedBiomeId, setSelectedBiomeId] = useState<string>('amazonia');
   const [unlockedBadges, setUnlockedBadges] = useState<string[]>(() => {
@@ -232,7 +231,6 @@ export default function BiomasDoBrasilPage() {
     }
   };
 
-  const isCurrentBiomeCompleted = unlockedBadges.includes(currentBiome.id);
   const allCompleted = unlockedBadges.length === BRAZIL_BIOMES.length;
 
   return (

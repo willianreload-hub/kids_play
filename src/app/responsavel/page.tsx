@@ -1,24 +1,22 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { useAuth } from '../../lib/auth-context';
 import { sounds } from '../../lib/sound-effects';
 import { PixelButton } from '../../components/PixelButton';
-import { 
-  ShieldCheck, Clock, Award, BookOpen, Heart, Settings, 
-  Sparkles, CheckCircle, AlertTriangle, Download, Trash2, 
-  Lightbulb, HelpCircle, ChevronRight, Volume2, UserCheck
+import {
+  ShieldCheck, Clock, Award, BookOpen, Heart, Settings,
+  AlertTriangle,
+  Lightbulb, UserCheck
 } from 'lucide-react';
 
 export default function ResponsavelPage() {
-  const { 
-    profile, 
-    guardian, 
-    focusMode, 
-    updateFocusSettings, 
-    toggleFocusMode, 
-    updateProfile 
+  const {
+    profile,
+    guardian,
+    focusMode,
+    updateFocusSettings,
+    toggleFocusMode
   } = useAuth();
 
   const [savedNotice, setSavedNotice] = useState(false);

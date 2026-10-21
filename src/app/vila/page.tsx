@@ -6,9 +6,9 @@ import { useAuth } from '../../lib/auth-context';
 import { PetIcon } from '../../components/PetIcon';
 import { PixelButton } from '../../components/PixelButton';
 import { sounds } from '../../lib/sound-effects';
-import { 
-  Home, Sparkles, Heart, Trash2, RotateCcw, 
-  Palette, Camera, Coins, ArrowLeft, Info, Check
+import {
+  Heart, Trash2, RotateCcw,
+  Palette, Coins, ArrowLeft, Check
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 

@@ -2,15 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../lib/auth-context';
-import { AVATAR_PRESETS, PET_CATALOG, ACHIEVEMENTS_CATALOG } from '../../lib/content-data';
+import { AVATAR_PRESETS, ACHIEVEMENTS_CATALOG } from '../../lib/content-data';
 import { PixelButton } from '../../components/PixelButton';
 import { PetIcon } from '../../components/PetIcon';
 import { sounds } from '../../lib/sound-effects';
 import { validateNickname } from '../../lib/nickname-moderator';
-import { 
-  User, Shield, Coins, Flame, Award, Heart, 
-  Settings, LogOut, Check, Sparkles, Volume2,
-  Trophy, CheckCircle2, Gift, Dices
+import {
+  Shield, Flame, Heart,
+  LogOut, Check, Sparkles,
+  Trophy, CheckCircle2, Gift
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 

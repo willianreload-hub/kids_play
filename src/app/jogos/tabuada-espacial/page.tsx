@@ -9,15 +9,14 @@ import { PixelButton } from '../../../components/PixelButton';
 import { PetIcon } from '../../../components/PetIcon';
 import { sounds } from '../../../lib/sound-effects';
 import { speakText, stopSpeaking } from '../../../lib/speech';
-import { 
-  ArrowLeft, Rocket, Zap, Trophy, Volume2, 
-  RotateCcw, Sparkles, Shield, AlertTriangle, Check
+import {
+  ArrowLeft, Rocket, Zap, Volume2,
+  RotateCcw, Sparkles, Shield, AlertTriangle
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export default function TabuadaEspacialPage() {
-  const { profile, activePet, focusMode, addPoints, updateQuestProgress, equippedAccessoryId } = useAuth();
-  const studentGrade = profile?.school_grade || 3;
+  const { activePet, focusMode, addPoints, updateQuestProgress, equippedAccessoryId } = useAuth();
 
   // Filtra as perguntas da Tabuada Espacial e de multiplicação/divisão
   const spaceQuestions = QUESTION_BANK.filter(

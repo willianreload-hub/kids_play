@@ -7,13 +7,13 @@ import { PET_CATALOG, ACCESSORY_CATALOG, RARITY_LABELS } from '../../lib/content
 import { PetIcon } from '../../components/PetIcon';
 import { PixelButton } from '../../components/PixelButton';
 import { sounds } from '../../lib/sound-effects';
-import { Pet, PetRarity, Accessory } from '../../lib/types';
+import { Pet, PetRarity } from '../../lib/types';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { speakText, stopSpeaking } from '../../lib/speech';
-import { 
-  Sparkles, Gift, Check, Star, Lock, Shirt, 
+import {
+  Sparkles, Gift, Check, Lock,
   ArrowUpCircle, ShoppingBag, ShieldCheck, Heart,
-  Volume2, Utensils, Coffee, Award, Smile
+  Volume2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
