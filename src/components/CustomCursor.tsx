@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../lib/auth-context';
+import { useLocalStorageState, useMediaQuery } from '../lib/client-hooks';
 
 export type CursorTheme = 'varinha' | 'picareta' | 'patinha' | 'foguete' | 'padrao';
 
@@ -23,42 +24,32 @@ export function CustomCursor() {
   const [pos, setPos] = useState({ x: -100, y: -100 });
   const [isPointer, setIsPointer] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
-  const [theme, setTheme] = useState<CursorTheme>('varinha');
+  const [theme, setTheme] = useLocalStorageState<CursorTheme>('kids_cursor_theme', 'varinha');
   const [ripples, setRipples] = useState<ClickRipple[]>([]);
-  const [isVisible, setIsVisible] = useState(false);
 
+  // Visibilidade derivada no render (SSR-safe via media queries)
+  const prefersReduced = useMediaQuery('(prefers-reduced-motion: reduce)');
+  const isCoarsePointer = useMediaQuery('(pointer: coarse)');
+  const isVisible =
+    !isCoarsePointer && !prefersReduced &&
+    !focusMode.is_active && !focusMode.reduced_stimuli &&
+    theme !== 'padrao';
+
+  // Ouvinte de evento customizado para trocar cursor em tempo real sem recarregar
   useEffect(() => {
-    // Carrega tema do localStorage
-    if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem('kids_cursor_theme') as CursorTheme;
-      if (savedTheme) setTheme(savedTheme);
+    const handleThemeChange = (e: CustomEvent<CursorTheme>) => {
+      setTheme(e.detail);
+    };
+    window.addEventListener('change_cursor_theme', handleThemeChange);
+    return () => {
+      window.removeEventListener('change_cursor_theme', handleThemeChange);
+    };
+  }, [setTheme]);
 
-      // Ouvinte de evento customizado para trocar cursor em tempo real sem recarregar
-      const handleThemeChange = (e: CustomEvent<CursorTheme>) => {
-        setTheme(e.detail);
-      };
-      window.addEventListener('change_cursor_theme', handleThemeChange);
-
-      return () => {
-        window.removeEventListener('change_cursor_theme', handleThemeChange);
-      };
-    }
-  }, []);
-
+  // Listeners de ponteiro, ripples de clique e classe de cursor ativo (efeitos colaterais puros)
   useEffect(() => {
-    // Desativa se toque (touch device), se Modo Foco ativo ou redução de movimento
-    if (typeof window === 'undefined') return;
+    if (!isVisible) return;
 
-    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    if (isTouch || prefersReduced || focusMode.is_active || focusMode.reduced_stimuli || theme === 'padrao') {
-      setIsVisible(false);
-      document.body.classList.remove('custom-cursor-active');
-      return;
-    }
-
-    setIsVisible(true);
     document.body.classList.add('custom-cursor-active');
 
     let rippleId = 0;
@@ -108,7 +99,7 @@ export function CustomCursor() {
       window.removeEventListener('pointerdown', handlePointerDown);
       window.removeEventListener('pointerup', handlePointerUp);
     };
-  }, [theme, focusMode.is_active, focusMode.reduced_stimuli]);
+  }, [theme, isVisible]);
 
   if (!isVisible) return null;
 

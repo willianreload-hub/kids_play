@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../lib/auth-context';
+import { useMediaQuery } from '../lib/client-hooks';
 
 interface Particle {
   id: number;
@@ -16,19 +17,10 @@ const COLORS = ['#f59e0b', '#38bdf8', '#ec4899', '#a855f7', '#10b981'];
 export function ParticleTrail() {
   const { focusMode } = useAuth();
   const [particles, setParticles] = useState<Particle[]>([]);
-  const [enabled, setEnabled] = useState(true);
 
-  // Não renderizar se Modo Foco ativo ou estímulos reduzidos ou preferência do sistema por redução de movimento
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (prefersReduced || focusMode.is_active || focusMode.reduced_stimuli) {
-        setEnabled(false);
-      } else {
-        setEnabled(true);
-      }
-    }
-  }, [focusMode.is_active, focusMode.reduced_stimuli]);
+  // Não renderizar se Modo Foco ativo, estímulos reduzidos ou preferência do sistema por redução de movimento
+  const prefersReduced = useMediaQuery('(prefers-reduced-motion: reduce)');
+  const enabled = !prefersReduced && !focusMode.is_active && !focusMode.reduced_stimuli;
 
   useEffect(() => {
     if (!enabled) return;

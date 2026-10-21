@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Download, X } from 'lucide-react';
 import { sounds } from '../lib/sound-effects';
+import { useMediaQuery } from '../lib/client-hooks';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -12,25 +13,20 @@ interface BeforeInstallPromptEvent extends Event {
 export function PwaRegister() {
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isDismissed, setIsDismissed] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
+  const [isInstalledByPrompt, setIsInstalledByPrompt] = useState(false);
+
+  // Já instalado (rodando como PWA) — derivado no render, SSR-safe
+  const isStandalone = useMediaQuery('(display-mode: standalone)');
+  const isInstalled = isStandalone || isInstalledByPrompt;
 
   useEffect(() => {
     // Registra service worker
-    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+    if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').catch(() => {
           // Registro silencioso
         });
       });
-    }
-
-    // Detecta se já está rodando em modo standalone (PWA instalado)
-    if (typeof window !== 'undefined') {
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-        (window.navigator as unknown as { standalone?: boolean }).standalone === true;
-      if (isStandalone) {
-        setIsInstalled(true);
-      }
     }
 
     // Captura evento de instalação PWA
@@ -54,7 +50,7 @@ export function PwaRegister() {
     if (outcome === 'accepted') {
       sounds.playSuccess();
       setInstallPrompt(null);
-      setIsInstalled(true);
+      setIsInstalledByPrompt(true);
     }
   };
 
