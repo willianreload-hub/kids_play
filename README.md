@@ -49,6 +49,15 @@ Abra [http://localhost:3000](http://localhost:3000) no seu navegador.
 
 ---
 
+## 🌎 Deploy de Produção
+
+O Kids-Player está publicado na Vercel: **[https://kids-play-five.vercel.app](https://kids-play-five.vercel.app)**
+
+- O repositório oficial é [`willianreload-hub/kids_play`](https://github.com/willianreload-hub/kids_play) (privado). Cada push em `master` dispara o pipeline de CI (GitHub Actions: lint, TypeScript, suíte de integridade e build) e um novo deploy automático na Vercel.
+- A aplicação roda em **modo demonstração** (localStorage) até que as credenciais reais do Supabase sejam configuradas — veja o `PLANO-DE-MELHORIAS-E-EXPANSAO.md`, Fase 2.
+
+---
+
 ## 📂 Estrutura de Pastas & Minijogos
 
 ```text
