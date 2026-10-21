@@ -55,6 +55,7 @@ O Kids-Player está publicado na Vercel: **[https://kids-play-five.vercel.app](h
 
 - O repositório oficial é [`willianreload-hub/kids_play`](https://github.com/willianreload-hub/kids_play) (privado). Cada push em `master` dispara o pipeline de CI (GitHub Actions: lint, TypeScript, suíte de integridade e build) e um novo deploy automático na Vercel.
 - A aplicação roda em **modo demonstração** (localStorage) até que as credenciais reais do Supabase sejam configuradas — veja o `PLANO-DE-MELHORIAS-E-EXPANSAO.md`, Fase 2.
+- **Regra de release PWA:** a cada deploy em produção, bumpar a constante `CACHE_VERSION` em `public/sw.js` para invalidar o cache dos navegadores que já instalaram o app.
 
 ---
 
