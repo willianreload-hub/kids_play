@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { Press_Start_2P, Fredoka } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '../lib/auth-context';
 import { Navbar } from '../components/Navbar';
@@ -6,6 +7,22 @@ import { PetCompanion } from '../components/PetCompanion';
 import { ParticleTrail } from '../components/ParticleTrail';
 import { PwaRegister } from '../components/PwaRegister';
 import { CustomCursor } from '../components/CustomCursor';
+
+// Fontes auto-hospedadas pelo next/font (zero requisições externas em produção).
+// As variáveis CSS alimentam o design system em globals.css (@theme e .font-pixel).
+const pressStart2P = Press_Start_2P({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-press-start-2p',
+});
+
+const fredoka = Fredoka({
+  weight: ['400', '600', '700'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-fredoka',
+});
 
 export const metadata: Metadata = {
   title: 'Kids-Player | Reforço Escolar Gamificado para 3º e 4º ano',
@@ -36,15 +53,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Press+Start+2P&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="min-h-screen bg-[#141526] text-slate-100 antialiased selection:bg-pink-500 selection:text-white">
+      <body className={`${pressStart2P.variable} ${fredoka.variable} min-h-screen bg-[#141526] text-slate-100 antialiased selection:bg-pink-500 selection:text-white`}>
         <AuthProvider>
           <div className="relative flex flex-col min-h-screen">
             <Navbar />

@@ -27,12 +27,13 @@ Copie o arquivo de exemplo:
 ```bash
 copy .env.example .env.local
 ```
-Edite `.env.local` com suas credenciais do Supabase:
+Edite `.env.local` com suas credenciais do Supabase (painel **Settings → API**, use a **Publishable key** no formato `sb_publishable_...`):
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sua-chave-anonima
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sua-chave-publishable
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
+> O nome legado `NEXT_PUBLIC_SUPABASE_ANON_KEY` (chave `eyJ...`) continua funcionando como fallback.
 > **Nota de Desenvolvimento:** O aplicativo possui modo de demonstração local gracioso (localStorage). Se as chaves do Supabase forem mantidas como placeholder, a aplicação funciona imediatamente para testes e navegação completa!
 
 ### 3. Executar o Esquema SQL no Supabase

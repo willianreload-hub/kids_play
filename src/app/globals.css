@@ -5,8 +5,8 @@
 @source "../lib";
 
 @theme {
-  --font-pixel: 'Press Start 2P', monospace;
-  --font-comic: 'Fredoka', 'Nunito', sans-serif;
+  --font-pixel: var(--font-press-start-2p), monospace;
+  --font-comic: var(--font-fredoka), 'Nunito', sans-serif;
   --color-kids-pink: #FF6B9D;
   --color-kids-blue: #4ECDC4;
   --color-kids-yellow: #FFE66D;
@@ -28,7 +28,7 @@ body {
 
 /* Tipografia Pixel Art */
 .font-pixel {
-  font-family: 'Press Start 2P', monospace, sans-serif;
+  font-family: var(--font-press-start-2p), monospace, sans-serif;
   letter-spacing: -0.5px;
 }
 
