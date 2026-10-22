@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../../lib/auth-context';
 import { SUBJECTS } from '../../lib/content-data';
+import { SEASONS, getCurrentSeason } from '../../lib/content/seasons';
 import { PixelButton } from '../../components/PixelButton';
 import { sounds } from '../../lib/sound-effects';
 import {
@@ -26,6 +27,9 @@ export default function JogosPage() {
   const { profile, focusMode, addPoints } = useAuth();
   const [selectedGrade, setSelectedGrade] = useState<3 | 4>(profile?.school_grade || 3);
   const [activeTab, setActiveTab] = useState<'materias' | 'minijogos' | 'mapa' | 'passe'>('materias');
+
+  // Temporada sazonal ativa (Fase 4.3) — hemisfério sul
+  const currentSeason = getCurrentSeason(new Date().getMonth() + 1, SEASONS);
 
   // Estado do Passe da Sabedoria (Persistido no navegador)
   const [claimedLevels, setClaimedLevels] = useState<number[]>(() => {
@@ -680,7 +684,7 @@ export default function JogosPage() {
       {activeTab === 'passe' && (
         <div className="space-y-6">
           
-          {/* Banner do Passe da Sabedoria */}
+          {/* Banner do Passe da Sabedoria — com a TEMPORADA SAZONAL ATIVA (Fase 4.3) */}
           <div className="pixel-box bg-gradient-to-r from-purple-950 via-slate-900 to-amber-950 p-6 border-purple-400 shadow-2xl">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex items-center gap-4 text-center md:text-left">
@@ -688,8 +692,11 @@ export default function JogosPage() {
                   🌟
                 </div>
                 <div>
-                  <div className="flex items-center gap-2 mb-1 justify-center md:justify-start">
-                    <span className="font-pixel text-xs text-amber-300">TEMPORADA 1 • 100% GRATUITO</span>
+                  <div className="flex items-center gap-2 mb-1 justify-center md:justify-start flex-wrap">
+                    <span className={`font-pixel text-[10px] px-2 py-1 rounded-lg ${currentSeason.badgeClasses}`} title="Temporada sazonal atual (hemisfério sul)">
+                      {currentSeason.emoji} {currentSeason.name.toUpperCase()}
+                    </span>
+                    <span className="font-pixel text-xs text-amber-300">100% GRATUITO</span>
                     <span className="text-[10px] bg-emerald-950 border border-emerald-500 text-emerald-300 px-2 py-0.5 rounded-full font-bold">
                       Zero Dinheiro Real • Sem Anúncios
                     </span>
@@ -698,7 +705,9 @@ export default function JogosPage() {
                     Trilha do Passe da Sabedoria
                   </h2>
                   <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
-                    Avance de nível estudando e jogando! Cada lição concluída rende XP para desbloquear moedas, fragmentos raros de PET e títulos lendários!
+                    Avance de nível estudando e jogando! Complete a trilha até o fim da temporada{' '}
+                    <strong className="text-white">{currentSeason.name} {currentSeason.emoji}</strong> e ganhe o título sazonal{' '}
+                    <strong className="text-amber-300">&ldquo;{currentSeason.rewardTitle}&rdquo;</strong>!
                   </p>
                 </div>
               </div>

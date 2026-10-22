@@ -54,9 +54,11 @@ const ITEMS_CATALOG: CatalogItem[] = [
   { id: 'item_fonte', name: 'Fonte dos Desejos', icon: '⛲', category: 'jardim', price: 40, description: 'Jorra água mágica sem parar.' },
 ];
 
-const GRID_COLS = 8;
-const GRID_ROWS = 6;
+const GRID_COLS = 10;
+const GRID_ROWS = 8;
 const TOTAL_TILES = GRID_COLS * GRID_ROWS;
+// Versão do formato de save da vila: layouts antigos (8×6) são recriados no padrão
+const VILLAGE_SAVE_VERSION = 2;
 
 // Abas do catálogo de construção da vila
 const CATEGORY_TABS: { id: 'pisos' | 'moveis' | 'estudo' | 'jardim'; label: string }[] = [
@@ -89,7 +91,12 @@ export default function VilaPage() {
       const saved = localStorage.getItem('kids_player_pet_village');
       if (saved) {
         try {
-          return JSON.parse(saved);
+          const parsed = JSON.parse(saved);
+          // Migração Vila v2: saves da grade antiga (48 blocos) regridam ao modelo padrão 10×8
+          if (Array.isArray(parsed) && parsed.length === TOTAL_TILES) {
+            return parsed;
+          }
+          localStorage.removeItem('kids_player_pet_village');
         } catch {}
       }
     }
@@ -358,7 +365,7 @@ export default function VilaPage() {
           </div>
 
           {/* GRADE DA VILA (8 COLUNAS X 6 LINHAS) */}
-          <div className="grid grid-cols-8 gap-2 p-3 bg-emerald-950/40 rounded-2xl border-2 border-emerald-600/60 shadow-inner relative overflow-hidden">
+          <div className="grid grid-cols-10 gap-2 p-3 bg-emerald-950/40 rounded-2xl border-2 border-emerald-600/60 shadow-inner relative overflow-hidden">
             
             {grid.map((tile, idx) => {
               const col = idx % GRID_COLS;

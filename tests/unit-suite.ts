@@ -1,4 +1,5 @@
 import { calcWpm, rollLootboxDemo, LOOTBOX_ODDS, nextDifficulty } from '../src/lib/game-logic';
+import { getCurrentSeason, SEASONS } from '../src/lib/content/seasons';
 
 let failures = 0;
 const results: { name: string; passed: boolean }[] = [];
@@ -51,6 +52,20 @@ assert(nextDifficulty(2, false, 0) === 1, 'adaptativa: erro desce de nível');
 assert(nextDifficulty(1, false, 0) === 1, 'adaptativa: nunca desce abaixo do nível 1');
 assert(nextDifficulty(2, true, 1) === 2, 'adaptativa: 1 acerto isolado mantém o nível');
 assert(nextDifficulty(2, false, 5) === 1, 'adaptativa: erro reseta mesmo com sequência boa');
+
+// ==============================================================================
+// 4. TEMPORADAS SAZONAIS (Fase 4.3) — hemisfério sul
+// ==============================================================================
+assert(getCurrentSeason(1, SEASONS).id === 'verao_herois', 'temporadas: janeiro = Verão dos Heróis');
+assert(getCurrentSeason(2, SEASONS).id === 'verao_herois', 'temporadas: fevereiro = Verão dos Heróis');
+assert(getCurrentSeason(12, SEASONS).id === 'verao_herois', 'temporadas: dezembro = Verão dos Heróis');
+assert(getCurrentSeason(4, SEASONS).id === 'outono_cosmico', 'temporadas: abril = Outono Cósmico');
+assert(getCurrentSeason(7, SEASONS).id === 'inverno_estelar', 'temporadas: julho = Inverno Estelar');
+assert(getCurrentSeason(10, SEASONS).id === 'primavera_magica', 'temporadas: outubro = Primavera Mágica');
+assert(
+  SEASONS.every(s => s.months.length === 3 && s.rewardTitle.length > 0),
+  'temporadas: as 4 estações cobrem 3 meses cada e têm título sazonal'
+);
 
 // ==============================================================================
 // RESUMO
