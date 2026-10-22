@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '../../../lib/auth-context';
 import { sounds } from '../../../lib/sound-effects';
 import { calcWpm } from '../../../lib/game-logic';
+import { useLocalStorageState } from '../../../lib/client-hooks';
 import { PixelButton } from '../../../components/PixelButton';
 import { PetIcon } from '../../../components/PetIcon';
 import {
@@ -46,6 +47,8 @@ export default function DigitacaoGamePage() {
   const [correctKeystrokes, setCorrectKeystrokes] = useState(0);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedMs, setElapsedMs] = useState(0);
+  // FANTASMA DO RECORDE (Fase 4.4): o próprio melhor WPM persistido, para superar
+  const [bestWpm, setBestWpm] = useLocalStorageState<number>('kids_player_best_wpm', 0);
   const [stars, setStars] = useState(0);
   const [pointsEarned, setPointsEarned] = useState(0);
   const [isCompletedSession, setIsCompletedSession] = useState(false);
@@ -170,6 +173,18 @@ export default function DigitacaoGamePage() {
           } else {
             setIsCompletedSession(true);
             sounds.playFanfare();
+
+            // FANTASMA DO RECORDE (Fase 4.4): bônus por superar o próprio melhor WPM
+            if (startTime) {
+              const finalWpm = calcWpm(LESSON_WORDS.length, Date.now() - startTime);
+              if (finalWpm > bestWpm) {
+                setBestWpm(finalWpm);
+                addPoints(20, 'recorde_digitacao');
+                if (!focusMode.reduced_stimuli) {
+                  confetti({ particleCount: 70, spread: 65, origin: { y: 0.5 } });
+                }
+              }
+            }
           }
         }, 500);
       }
@@ -232,6 +247,17 @@ export default function DigitacaoGamePage() {
             <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
             <span className="font-pixel text-xs text-yellow-300">{stars}</span>
           </div>
+
+          {/* FANTASMA DO RECORDE (Fase 4.4): supere o seu próprio melhor WPM! */}
+          {bestWpm > 0 && (
+            <div
+              className="hidden sm:flex bg-slate-900 border-2 border-purple-500/60 px-3 py-1.5 rounded-xl items-center gap-1.5"
+              title="Seu fantasma é o seu próprio recorde de WPM. Supere-o para ganhar +20 moedas!"
+            >
+              <span className="text-sm" aria-hidden="true">👻</span>
+              <span className="font-pixel text-[11px] text-purple-300">{bestWpm} WPM</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -258,8 +284,18 @@ export default function DigitacaoGamePage() {
           <h2 className="font-pixel text-xl sm:text-2xl text-orange-300 mb-2">
             SEUS DEDOS SÃO MÁGICOS!
           </h2>
-          <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto mb-6">
+          <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto mb-2">
             Parabéns! Você dominou o teclado como um programador prodígio e conquistou <strong>+{pointsEarned} Moedas Mágicas</strong>!
+          </p>
+          <p className="text-xs text-purple-300 max-w-md mx-auto mb-6 flex items-center justify-center gap-1.5">
+            <span aria-hidden="true">👻</span>
+            {wpm >= bestWpm && bestWpm > 0 ? (
+              <><strong>NOVO RECORDE PESSOAL!</strong> Você superou o próprio fantasma (+20 moedas de bônus)!</>
+            ) : bestWpm > 0 ? (
+              <>Seu fantasma do recorde segue em <strong>{bestWpm} WPM</strong> — tente superá-lo na próxima!</>
+            ) : (
+              <>Primeira sessão registrada! Agora existe um fantasma do recorde para você caçar.</>
+            )}
           </p>
 
           <div className="grid grid-cols-3 gap-3 max-w-sm mx-auto mb-8">
