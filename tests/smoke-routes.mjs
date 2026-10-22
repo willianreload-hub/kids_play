@@ -19,7 +19,8 @@ const routes = [
   '/ranking',
   '/missoes',
   '/perfil',
-  '/responsavel'
+  '/responsavel',
+  '/professor'
 ];
 
 async function checkRoute(route) {

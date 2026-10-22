@@ -10,8 +10,7 @@ import { SUBJECTS, AVATAR_PRESETS, PET_CATALOG, TERMS_VERSION, TERMS_UPDATED_AT,
 import { validateNickname } from '../../lib/nickname-moderator';
 import {
   ShieldCheck, Clock, Award, BookOpen, Heart, Settings,
-  AlertTriangle,
-  Lightbulb, UserCheck, Users, Plus
+  AlertTriangle, Lightbulb, UserCheck, Users, Plus, School
 } from 'lucide-react';
 
 interface SessionRow {
@@ -215,6 +214,65 @@ export default function ResponsavelPage() {
     }
     setIsExporting(false);
   };
+
+  // MODO ESCOLA (Fase 5.1): turmas do aluno ativo — entrada por código (RPC validada)
+  const [turmaCode, setTurmaCode] = useState('');
+  const [turmaError, setTurmaError] = useState('');
+  const [turmas, setTurmas] = useState<{ id: string; name: string; school_grade: number }[]>([]);
+  const [showJoinTurma, setShowJoinTurma] = useState(false);
+  const [isJoining, setIsJoining] = useState(false);
+
+  const loadTurmas = async () => {
+    if (!profile || isDemo || !isSupabaseConfigured) {
+      setTurmas([]);
+      return;
+    }
+    const { data } = await supabase
+      .from('class_students')
+      .select('id, class_id, classes(id, name, school_grade)')
+      .eq('student_id', profile.id);
+    const rows = ((data as { classes: { id: string; name: string; school_grade: number } | null }[] | null) || [])
+      .filter(r => r.classes)
+      .map(r => r.classes!);
+    setTurmas(rows);
+  };
+
+  const handleJoinTurma = async () => {
+    if (!profile || turmaCode.trim().length < 4) {
+      setTurmaError('Confira o código com o professor.');
+      return;
+    }
+    setIsJoining(true);
+    setTurmaError('');
+    const { error } = await supabase.rpc('join_class_by_code', {
+      p_code: turmaCode.trim(),
+      p_student_id: profile.id,
+    });
+    if (error) {
+      setTurmaError(error.message);
+    } else {
+      sounds.playSuccess();
+      setShowJoinTurma(false);
+      setTurmaCode('');
+      loadTurmas();
+    }
+    setIsJoining(false);
+  };
+
+  const handleLeaveTurma = async (classId: string) => {
+    if (!profile) return;
+    sounds.playClick();
+    await supabase
+      .from('class_students')
+      .delete()
+      .eq('class_id', classId)
+      .eq('student_id', profile.id);
+    loadTurmas();
+  };
+
+  useEffect(() => {
+    loadTurmas();
+  }, [profile?.id, isDemo]);
 
   const handleSaveSettings = () => {
     sounds.playSuccess();
@@ -468,6 +526,95 @@ export default function ResponsavelPage() {
                 })}
             </div>
           </>
+        )}
+      </div>
+
+      {/* ============================================================== */}
+      {/* TURMAS & DEVERES DA ESCOLA (MODO ESCOLA — FASE 5.1) */}
+      {/* ============================================================== */}
+      <div className="pixel-box bg-slate-900/90 p-6 mb-8 border-indigo-500/70">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+          <h3 className="font-pixel text-xs sm:text-sm text-indigo-300 flex items-center gap-2">
+            <School size={16} />
+            TURMAS & DEVERES DA ESCOLA
+          </h3>
+          {isDemo || !isSupabaseConfigured ? (
+            <span className="text-[10px] text-slate-500 max-w-[220px] text-right">
+              Conecte a conta real para entrar em turmas com o código do professor
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                sounds.playClick();
+                setTurmaError('');
+                setShowJoinTurma(s => !s);
+              }}
+              className="text-[11px] font-pixel bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-xl transition-colors shrink-0"
+            >
+              + ENTRAR COM CÓDIGO
+            </button>
+          )}
+        </div>
+
+        <p className="text-[11px] text-slate-400 mb-3">
+          Perfil ativo: <strong className="text-white">{profile?.nickname || '—'}</strong>.
+          O professor vê apenas o apelido e o desempenho pedagógico — seus dados e o Modo Foco
+          ficam protegidos.
+        </p>
+
+        {showJoinTurma && (
+          <div className="flex flex-col sm:flex-row gap-2 mb-4 bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <input
+              type="text"
+              value={turmaCode}
+              onChange={e => {
+                setTurmaCode(e.target.value.toUpperCase());
+                setTurmaError('');
+              }}
+              placeholder="CÓDIGO DA TURMA (ex.: A1B2C3D4)"
+              maxLength={12}
+              className="flex-1 bg-slate-900 border-2 border-slate-700 rounded-xl px-3 py-2 text-sm text-white font-mono uppercase tracking-wider"
+            />
+            <button
+              type="button"
+              onClick={handleJoinTurma}
+              disabled={isJoining}
+              className="text-xs font-pixel bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl disabled:opacity-50 shrink-0"
+            >
+              {isJoining ? '...' : 'ENTRAR'}
+            </button>
+          </div>
+        )}
+        {turmaError && (
+          <p className="text-[11px] text-rose-300 bg-rose-950/60 border border-rose-700 rounded-lg px-3 py-2 mb-3">
+            ⚠️ {turmaError}
+          </p>
+        )}
+
+        {turmas.length === 0 ? (
+          <p className="text-xs text-slate-400">
+            {profile?.nickname || 'Seu filho(a)'} ainda não está em nenhuma turma. Com o código do
+            professor em mãos, toque em ENTRAR COM CÓDIGO!
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {turmas.map(t => (
+              <div key={t.id} className="bg-slate-950 border border-slate-800 rounded-xl p-3 flex items-center justify-between gap-3">
+                <div>
+                  <span className="text-xs font-bold text-white block">{t.name}</span>
+                  <span className="text-[10px] text-slate-400">{t.school_grade}º ano</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleLeaveTurma(t.id)}
+                  className="text-[10px] bg-rose-950 hover:bg-rose-900 border border-rose-600 text-rose-300 px-2.5 py-1.5 rounded-lg transition-colors shrink-0"
+                >
+                  SAIR DA TURMA
+                </button>
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
