@@ -59,6 +59,61 @@ const DEFAULT_FOCUS_SETTINGS: FocusModeSettings = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ * Migra o progresso do modo demo (localStorage) para a conta real — exatamente uma
+ * vez por conta/dispositivo (flag `kids_demo_migrated_<userId>`).
+ * Moedas ganhas localmente entram no livro-razão do servidor como uma única
+ * transação 'demo_migration' via função segura; XP/nível só sobem (nunca descem).
+ */
+async function migrateDemoProgressToCloud(
+  userId: string
+): Promise<{ profile: StudentProfile; earnedPoints: number } | null> {
+  if (typeof window === 'undefined') return null;
+  const migrationFlag = `kids_demo_migrated_${userId}`;
+  if (localStorage.getItem(migrationFlag)) return null;
+
+  const savedDemo = localStorage.getItem('kids_profile');
+  if (!savedDemo) return null;
+
+  try {
+    const demo = JSON.parse(savedDemo) as StudentProfile;
+    // Só migra progresso dos modos demo/local (nunca de outra conta real)
+    if (!demo.id.startsWith('demo-') && !demo.id.startsWith('student-')) return null;
+
+    // Kit inicial: 350 moedas (demo) ou 200 (cadastro local sem nuvem)
+    const baseline = demo.id.startsWith('demo-') ? 350 : 200;
+    const earnedPoints = Math.max(0, (demo.points || 0) - baseline);
+
+    if (earnedPoints > 0) {
+      const { error } = await supabase.rpc('apply_points_transaction', {
+        p_student_id: userId,
+        p_amount: earnedPoints,
+        p_reason: 'demo_migration',
+        p_metadata: { origin: 'local_demo' },
+      });
+      if (error) return null;
+    }
+
+    // XP/nível em nuvem só sobem (nunca sobrescrevem progresso maior já existente)
+    const { data: currentProf } = await supabase
+      .from('profiles')
+      .select('xp, level')
+      .eq('id', userId)
+      .single();
+    if (currentProf && (demo.xp || 0) > (currentProf.xp || 0)) {
+      await supabase
+        .from('profiles')
+        .update({ xp: demo.xp || 0, level: demo.level || 1 })
+        .eq('id', userId);
+    }
+
+    localStorage.setItem(migrationFlag, '1');
+    return { profile: demo, earnedPoints };
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [guardian, setGuardian] = useState<Guardian | null>(null);
@@ -107,6 +162,75 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem('kids_profile', JSON.stringify(demoProf));
       localStorage.setItem('kids_active_pet_id', defaultPet.id);
       localStorage.setItem('kids_user_pets', JSON.stringify(initialUserPets));
+    }
+  };
+
+  // Hidrata o estado local com os dados reais da conta em nuvem (perfil, saldo, guardião e pet ativo)
+  const hydrateFromServerSession = async (userId: string): Promise<boolean> => {
+    try {
+      const { data: profData, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      if (error || !profData) return false;
+
+      // Saldo real vem do livro-razão (view student_balances)
+      const { data: balanceData } = await supabase
+        .from('student_balances')
+        .select('balance_points')
+        .eq('student_id', userId)
+        .single();
+
+      const profile: StudentProfile = {
+        id: profData.id,
+        nickname: profData.nickname,
+        school_grade: profData.school_grade as SchoolGrade,
+        avatar_preset: profData.avatar_preset,
+        avatar_url: profData.avatar_url,
+        level: profData.level || 1,
+        xp: profData.xp || 0,
+        points: balanceData?.balance_points ?? 200,
+        streak_days: profData.streak_days || 1,
+      };
+      setProfile(profile);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('kids_profile', JSON.stringify(profile));
+      }
+
+      // Guardião legal da conta
+      const { data: guardData } = await supabase
+        .from('guardians')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      if (guardData) {
+        setGuardian(guardData);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('kids_guardian', JSON.stringify(guardData));
+        }
+      }
+
+      // Pet ativo em nuvem (user_pets com join para os detalhes do catálogo)
+      const { data: activePetRow } = await supabase
+        .from('user_pets')
+        .select('pet_id, pets(*)')
+        .eq('student_id', userId)
+        .eq('is_active', true)
+        .single();
+      const petData = (activePetRow as { pets?: Pet } | null)?.pets;
+      if (petData) {
+        const pet = PET_CATALOG.find(p => p.id === petData.id) || petData;
+        setActivePetState(pet);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('kids_active_pet_id', pet.id);
+        }
+      }
+
+      setIsDemo(false);
+      return true;
+    } catch {
+      return false;
     }
   };
 
@@ -171,29 +295,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }
 
-        // Se configurado com Supabase, checa sessão
+        // Se configurado com Supabase, checa sessão e hidrata com os dados reais da nuvem
         if (isSupabaseConfigured) {
           try {
             const { data: { session } } = await supabase.auth.getSession();
             if (session?.user) {
-              const { data: profData } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', session.user.id)
-                .single();
-
-              if (profData) {
-                setProfile({
-                  id: profData.id,
-                  nickname: profData.nickname,
-                  school_grade: profData.school_grade as SchoolGrade,
-                  avatar_preset: profData.avatar_preset,
-                  avatar_url: profData.avatar_url,
-                  level: profData.level || 1,
-                  xp: profData.xp || 0,
-                  points: 250,
-                  streak_days: profData.streak_days || 1,
-                });
+              const hydrated = await hydrateFromServerSession(session.user.id);
+              if (hydrated) {
                 setIsLoading(false);
                 return;
               }
@@ -505,6 +613,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUpStudent = async (params: SignUpParams): Promise<{ success: boolean; error?: string }> => {
     try {
+      let userId: string | undefined;
+      let demoMigration: { profile: StudentProfile; earnedPoints: number } | null = null;
+
       if (isSupabaseConfigured && params.password) {
         const { data: authData, error: authErr } = await supabase.auth.signUp({
           email: params.guardianEmail,
@@ -515,7 +626,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return { success: false, error: authErr.message };
         }
 
-        const userId = authData.user?.id;
+        userId = authData.user?.id;
         if (userId) {
           await supabase.from('guardians').insert({
             id: userId,
@@ -535,11 +646,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             streak_days: 1,
           });
 
-          await supabase.from('points_ledger').insert({
-            student_id: userId,
-            amount: 200,
-            reason: 'welcome_bonus',
+          // Bônus de boas-vindas via função segura (INSERT direto no ledger é bloqueado por RLS)
+          const { error: bonusError } = await supabase.rpc('apply_points_transaction', {
+            p_student_id: userId,
+            p_amount: 200,
+            p_reason: 'welcome_bonus',
           });
+          if (bonusError) {
+            console.warn('Bônus de boas-vindas não creditado:', bonusError.message);
+          }
 
           await supabase.from('user_pets').insert({
             student_id: userId,
@@ -555,17 +670,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               guardian_consent_date: new Date().toISOString(),
             });
           }
+
+          // Migra o progresso do modo demo local para a conta real (exatamente uma vez)
+          demoMigration = await migrateDemoProgressToCloud(userId);
         }
       }
 
+      const realMode = Boolean(userId);
       const newProfile: StudentProfile = {
-        id: `student-${Date.now()}`,
+        id: realMode && userId ? userId : `student-${Date.now()}`,
         nickname: params.nickname,
         school_grade: params.grade,
         avatar_preset: params.avatarPreset,
-        level: 1,
-        xp: 0,
-        points: 200,
+        level: demoMigration?.profile.level ?? 1,
+        xp: demoMigration?.profile.xp ?? 0,
+        points: 200 + (demoMigration?.earnedPoints ?? 0),
         streak_days: 1,
       };
 
@@ -595,7 +714,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setGuardian(newGuardian);
         setActivePetState(pet);
         setUserPets(initialUserPets);
-        setIsDemo(!isSupabaseConfigured);
+        setIsDemo(!realMode);
 
         if (params.focusModeConsent) {
           toggleFocusMode(true);
@@ -619,8 +738,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loginStudent = async (email: string, password?: string): Promise<{ success: boolean; error?: string }> => {
     try {
       if (isSupabaseConfigured && password) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) return { success: false, error: error.message };
+
+        const userId = data.user?.id;
+        if (userId) {
+          // Migra o progresso demo (se houver) ANTES de hidratar o estado local
+          await migrateDemoProgressToCloud(userId);
+          const hydrated = await hydrateFromServerSession(userId);
+          if (hydrated) return { success: true };
+        }
+        // Sem perfil na nuvem: fallback demo gracioso (não deixa a criança bloqueada)
+        loginAsDemo(email.split('@')[0] || 'Campeão', 3);
+        return { success: true };
       }
 
       loginAsDemo(email.split('@')[0] || 'Campeão', 3);
