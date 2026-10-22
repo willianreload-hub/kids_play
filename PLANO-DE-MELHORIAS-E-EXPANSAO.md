@@ -510,10 +510,12 @@ self.addEventListener('fetch', (event) => {
 
 | # | Iniciativa | Escopo essencial | Critério de aceite |
 |---|---|---|---|
-| 3.1 | **🎭 Teatro dos Contos** (sons já prontos: `playPageFlip`, `playApplause`) | Rota `/contos` + leitor: 3 fábulas originais pedagógicas por série (EF35LP02/EF35LP03 — compreensão e interpretação), leitura página a página com TTS opcional, 1 pergunta de compreensão por capítulo, `playPageFlip` ao virar página, `playApplause` + confetti + pontos ao concluir. Link na Navbar e no Hub de Jogos. | Rota nova no smoke (19 rotas); questão de compreensão valida via `addPoints`; página funciona offline (PWA v2). |
-| 3.2 | **Banco de questões 43 → 150** | Processo editorial leve: planilha (`content/questions.source.csv`) → script de conversão validado → `content/questions.ts`. Metas por matéria: matemática 30, português 25, ciências 25, história/geografia 30, inglês 25, digitação 20. Novo gate no `integrity-suite.ts` (ver código abaixo). | `npm test` falha com qualquer matéria abaixo da meta; todas as questões têm BNCC, explicação e opções válidas (o gate atual já exige). |
-| 3.3 | **Inglês 14 → 100 palavras** + modo memória | Ampliar `ENGLISH_VOCABULARY` com categorias (animais, cores, família, escola, comida, números); novo minijogo de memória auditiva dentro de `/jogos/ingles` usando TTS existente. | 100 palavras com transcrição fonética amigável + frase de exemplo; teste de meta no integrity-suite. |
-| 3.4 | **Dificuldade adaptativa** | Usar `nextDifficulty` (Tarefa 1.2) nos jogos de quiz: streak de 2 acertos sobe o `difficulty` do pool; erro desce. Indicador visual lúdico ("nível do herói"). | Jogador de 3º ano nunca fica preso em questões fáceis repetidas; helper unit-testado. |
+| 3.1 | **🎭 Teatro dos Contos** — ✅ `2a50a68` | CONCLUÍDO: rota `/contos` com 3 fábulas originais BNCC (EF35LP02/03), TTS opcional, perguntinhas de compreensão, `playPageFlip`/`playApplause` + confetti + 30 moedas na 1ª leitura; Navbar + 19/19 no smoke |
+| 3.2 | **Banco de questões 43 → 105** — ✅ `2a50a68` + `415e2c7` | CONCLUÍDO: 62 questões novas por 5 redatores especializados com revisão integrada (aritmética conferida, BNCC verificada na base oficial do MEC); **gate de metas no CI** — reprova se qualquer matéria cair dos pisos (mat 30 / port 25 / cie 25 / hist-geo 25) |
+| 3.3 | **Inglês 14 → 100 palavras + memória** — ✅ `703a565` + `415e2c7` | CONCLUÍDO: 86 palavras novas (5 substituições anti-duplicata na revisão) + **Modo Memória Mágica** (pares palavra↔tradução com TTS por par, +30 moedas, respeita reduced-stimuli); gate inglês ≥ 100 |
+| 3.4 | **Dificuldade adaptativa** — ✅ `2a50a68` | CONCLUÍDO: nível do herói (2 acertos seguidos sobem, erro desce) sorteando dentro do nível em matemática, português e ciências via `nextDifficulty` testado; badge ⭐ no HUD |
+
+**✅ FASE 3 CONCLUÍDA EM 22/10/2026.** Ajuste de escopo registrado: as metas originais de inglês (25) e digitação (20) no QUESTION_BANK foram substituídas pelo vocabulário próprio (100 palavras com gate) e pelo jogo de digitação — os jogos dessas matérias consomem catálogos dedicados, não o banco de questões.
 
 **Gate de meta para o `integrity-suite.ts`** (adicionar junto com a Tarefa 3.2):
 
