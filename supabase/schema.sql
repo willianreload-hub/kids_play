@@ -609,7 +609,12 @@ INSERT INTO public.pets (id, name, species, rarity, description, sprite_key, bas
     ('ignis_dragao', 'Ignis', 'Mini Dragão Cósmico', 'lendario', 'Um dragãozinho brincalhão com bafo de faíscas que incendeia seu entusiasmo em Matemática!', 'pet_dragon', 95),
     ('fenix_dourada', 'Solzinho', 'Pássaro do Alvorecer', 'mitico', 'Uma criatura lendária cintilante que irradia sabedoria máxima!', 'pet_phoenix', 120),
     ('tita_cristal', 'Titã de Cristal', 'Golem Antigo da Terra', 'mitico', 'Um ser ancestral esculpido em cristal brilhante que protege sua constância de estudos!', 'pet_golem', 135),
-    ('flora_preguica', 'Flora', 'Preguiça Mística Zen', 'mitico', 'Mestre da calma e respiração, garante concentração máxima no Modo Foco e dobra o afeto diário!', 'pet_sloth', 140)
+    ('flora_preguica', 'Flora', 'Preguiça Mística Zen', 'mitico', 'Mestre da calma e respiração, garante concentração máxima no Modo Foco e dobra o afeto diário!', 'pet_sloth', 140),
+    ('tatu_cerrado', 'Bolinha', 'Tatuzinho do Cerrado', 'normal', 'Um tatuzinho corajoso do Cerrado que vira uma bolinha de armadura quando precisa de coragem extra!', 'pet_armadillo', 14),
+    ('prea_pampa', 'Saltitante', 'Preá do Campo', 'normal', 'Um roedorzinho ágil do Pampa que salta de alegria com cada resposta certa sua!', 'pet_prea', 12),
+    ('tucano_mata', 'Tuc', 'Tucano da Mata Atlântica', 'raro', 'O guardião das cores da Mata Atlântica, com um bico gigante para anunciar suas vitórias!', 'pet_toucan', 32),
+    ('boto_amazonia', 'Lumi', 'Boto Cor-de-Rosa', 'epico', 'Um boto mágico dos rios da Amazônia que ilumina o caminho das respostas certas!', 'pet_dolphin', 60),
+    ('arara_pantanal', 'Céu', 'Arara Azul do Pantanal', 'lendario', 'A arara mais rara do Pantanal! Suas asas azuis carregam a sorte dos grandes campeões.', 'pet_macaw', 88)
 ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
     species = EXCLUDED.species,

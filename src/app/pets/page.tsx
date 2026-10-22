@@ -675,7 +675,7 @@ export default function PetsPage() {
                         : 'bg-slate-900 border-slate-800 hover:border-slate-600 opacity-80 hover:opacity-100'
                     }`}
                   >
-                    <PetIcon petId={pet.id} size={40} mood={isSelected ? 'happy' : 'idle'} />
+                    <PetIcon petId={pet.id} size={40} mood={isSelected ? 'happy' : 'idle'} level={up.level} />
                     <span className="font-pixel text-[10px] text-white mt-1.5 truncate max-w-full">
                       {pet.name}
                     </span>
@@ -760,11 +760,12 @@ export default function PetsPage() {
 
                     <div className="w-20 h-20 mx-auto mb-3 flex items-center justify-center">
                       {isOwned ? (
-                        <PetIcon 
-                          petId={pet.id} 
-                          size={64} 
-                          mood={isActive ? 'happy' : 'idle'} 
-                          accessoryId={isActive ? equippedAccessoryId : undefined} 
+                        <PetIcon
+                          petId={pet.id}
+                          size={64}
+                          mood={isActive ? 'happy' : 'idle'}
+                          accessoryId={isActive ? equippedAccessoryId : undefined}
+                          level={userPet?.level}
                         />
                       ) : (
                         <div className="w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center text-slate-600 border border-slate-700">

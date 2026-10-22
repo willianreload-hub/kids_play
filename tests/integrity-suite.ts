@@ -130,7 +130,7 @@ PET_CATALOG.forEach(pet => {
   assert(hasIconCase, 'PetIcon', `Suporte SVG em PetIcon para '${pet.id}'`, `Pet '${pet.id}' não encontrado nos cases de PetIcon.tsx!`);
 });
 
-assert(PET_CATALOG.length === 15, 'PETs', `Total de 15 PETs cadastrados (atual: ${PET_CATALOG.length})`);
+assert(PET_CATALOG.length === 20, 'PETs', `Total de 20 PETs cadastrados (atual: ${PET_CATALOG.length})`);
 
 // ==============================================================================
 // TESTE 3: CATÁLOGO DE ACESSÓRIOS

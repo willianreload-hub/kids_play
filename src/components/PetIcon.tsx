@@ -5,10 +5,14 @@ interface PetIconProps {
   size?: number;
   mood?: 'idle' | 'happy' | 'sad';
   accessoryId?: string | null;
+  /** Nível de evolução do pet (nível 3+ ganha ⭐, nível 5 ganha 👑) */
+  level?: number;
   className?: string;
 }
 
-export function PetIcon({ petId, size = 64, mood = 'idle', accessoryId, className = '' }: PetIconProps) {
+export function PetIcon({ petId, size = 64, mood = 'idle', accessoryId, level, className = '' }: PetIconProps) {
+  // Estágio de evolução visual (Fase 4.1): ⭐ no nível 3+, 👑 brilhante no nível máximo
+  const evolutionStage = level !== undefined ? (level >= 5 ? 3 : level >= 3 ? 2 : 1) : 1;
   // Renderizadores SVG pixel art puros, leves e originais
   const renderSvgContent = () => {
     switch (petId) {
@@ -377,6 +381,196 @@ export function PetIcon({ petId, size = 64, mood = 'idle', accessoryId, classNam
           </svg>
         );
 
+      case 'tatu_cerrado':
+        return (
+          <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+            {/* Armadura do Cerrado */}
+            <ellipse cx="16" cy="16" rx="12" ry="10" fill="#b45309" />
+            <ellipse cx="16" cy="15" rx="10" ry="8" fill="#f59e0b" />
+            <rect x="12" y="7" width="8" height="17" fill="#92400e" rx="2" opacity="0.7" />
+            <rect x="8" y="11" width="16" height="3" fill="#92400e" rx="1.5" opacity="0.5" />
+            <rect x="8" y="17" width="16" height="3" fill="#92400e" rx="1.5" opacity="0.5" />
+            {/* Rostinho curioso */}
+            <rect x="10" y="21" width="12" height="7" fill="#fde68a" rx="3" />
+            {mood === 'happy' ? (
+              <>
+                <path d="M12 24 Q13 22 14 24" stroke="#451a03" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+                <path d="M18 24 Q19 22 20 24" stroke="#451a03" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+              </>
+            ) : mood === 'sad' ? (
+              <>
+                <rect x="12" y="23" width="2" height="2" fill="#451a03" />
+                <rect x="18" y="23" width="2" height="2" fill="#451a03" />
+              </>
+            ) : (
+              <>
+                <rect x="12" y="23" width="2.5" height="2.5" fill="#451a03" />
+                <rect x="18" y="23" width="2.5" height="2.5" fill="#451a03" />
+              </>
+            )}
+            <path d="M14 26 Q16 27.5 18 26" stroke="#451a03" strokeWidth="1" strokeLinecap="round" fill="none" />
+            <circle cx="11" cy="25" r="1" fill="#fca5a5" opacity="0.8" />
+            <circle cx="21" cy="25" r="1" fill="#fca5a5" opacity="0.8" />
+            {renderAccessoryOverlay()}
+          </svg>
+        );
+
+      case 'tucano_mata':
+        return (
+          <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+            {/* Cauda e asas pretas da Mata Atlântica */}
+            <rect x="11" y="22" width="4" height="6" fill="#111827" rx="1" />
+            <rect x="17" y="22" width="4" height="6" fill="#111827" rx="1" />
+            <rect x="8" y="13" width="5" height="10" fill="#111827" rx="2" />
+            <rect x="19" y="13" width="5" height="10" fill="#111827" rx="2" />
+            {/* Corpo e peito branco */}
+            <rect x="9" y="12" width="14" height="12" fill="#1f2937" rx="4" />
+            <rect x="12" y="15" width="8" height="8" fill="#f8fafc" rx="2" />
+            {/* Cabeça */}
+            <rect x="10" y="5" width="12" height="9" fill="#1f2937" rx="3" />
+            {/* Bico gigante laranja */}
+            <rect x="2" y="8" width="9" height="5" fill="#f97316" rx="2" />
+            <rect x="3" y="9" width="7" height="1.6" fill="#fdba74" />
+            <rect x="1" y="9" width="2" height="3" fill="#c2410c" rx="1" />
+            {/* Olhos */}
+            {mood === 'happy' ? (
+              <path d="M16 8 Q17.5 6 19 8" stroke="#f8fafc" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+            ) : mood === 'sad' ? (
+              <rect x="16" y="8" width="2.5" height="2.5" fill="#f8fafc" />
+            ) : (
+              <>
+                <circle cx="17" cy="8" r="2" fill="#f8fafc" />
+                <circle cx="17.5" cy="8" r="1" fill="#111827" />
+              </>
+            )}
+            {/* Pézinhos laranja */}
+            <rect x="12" y="24" width="2" height="3" fill="#f97316" />
+            <rect x="18" y="24" width="2" height="3" fill="#f97316" />
+            {renderAccessoryOverlay()}
+          </svg>
+        );
+
+      case 'boto_amazonia':
+        return (
+          <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+            {/* Corpo rosa do rio mágico */}
+            <ellipse cx="17" cy="17" rx="11" ry="9" fill="#f9a8d4" />
+            <ellipse cx="17" cy="15" rx="8" ry="6" fill="#fbcfe8" />
+            {/* Nadadeiras */}
+            <rect x="5" y="20" width="6" height="4" rx="2" fill="#f472b6" transform="rotate(-15 8 22)" />
+            <rect x="21" y="21" width="6" height="4" rx="2" fill="#f472b6" transform="rotate(15 24 23)" />
+            {/* Cauda */}
+            <polygon points="27,18 31,14 31,24" fill="#f472b6" />
+            {/* Bico sorridente */}
+            <rect x="4" y="13" width="6" height="4" rx="2" fill="#f9a8d4" />
+            {/* Olhos gentis */}
+            {mood === 'happy' ? (
+              <>
+                <path d="M11 15 Q12.5 13 14 15" stroke="#831843" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+                <path d="M18 15 Q19.5 13 21 15" stroke="#831843" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+              </>
+            ) : mood === 'sad' ? (
+              <>
+                <rect x="11" y="14" width="2.5" height="2.5" fill="#831843" />
+                <rect x="19" y="14" width="2.5" height="2.5" fill="#831843" />
+                <path d="M14 20 Q17 18.5 20 20" stroke="#831843" strokeWidth="1" fill="none" strokeLinecap="round" />
+              </>
+            ) : (
+              <>
+                <circle cx="12" cy="15" r="2" fill="#831843" />
+                <circle cx="20" cy="15" r="2" fill="#831843" />
+                <circle cx="12.6" cy="14.4" r="0.7" fill="#fff" />
+                <circle cx="20.6" cy="14.4" r="0.7" fill="#fff" />
+              </>
+            )}
+            {/* Sopro mágico da Amazônia */}
+            <circle cx="26" cy="6" r="1.5" fill="#a5f3fc" className="animate-ping" opacity="0.9" />
+            <circle cx="29" cy="10" r="1" fill="#67e8f9" className="animate-pulse" />
+            {renderAccessoryOverlay()}
+          </svg>
+        );
+
+      case 'arara_pantanal':
+        return (
+          <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+            {/* Corpo azul do Pantanal */}
+            <rect x="10" y="12" width="12" height="13" fill="#2563eb" rx="4" />
+            <rect x="12" y="24" width="3" height="6" fill="#1d4ed8" rx="1" />
+            <rect x="17" y="24" width="3" height="6" fill="#1d4ed8" rx="1" />
+            {/* Asas */}
+            <rect x="6" y="14" width="5" height="10" fill="#1d4ed8" rx="2" />
+            <rect x="21" y="14" width="5" height="10" fill="#1d4ed8" rx="2" />
+            {/* Cabeça com máscara branca */}
+            <rect x="9" y="4" width="14" height="10" fill="#3b82f6" rx="3" />
+            <rect x="11" y="6" width="10" height="6" fill="#f8fafc" rx="2" />
+            {/* Bico curvo preto */}
+            <path d="M23 9 Q28.5 9.5 27.5 14" stroke="#111827" strokeWidth="3.4" fill="none" strokeLinecap="round" />
+            {/* Olhos espertos */}
+            {mood === 'happy' ? (
+              <>
+                <path d="M13 9 Q14.5 7 16 9" stroke="#111827" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+                <path d="M17.5 9 Q19 7 20.5 9" stroke="#111827" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+              </>
+            ) : mood === 'sad' ? (
+              <>
+                <rect x="13" y="9" width="2.5" height="2.5" fill="#111827" />
+                <rect x="18" y="9" width="2.5" height="2.5" fill="#111827" />
+              </>
+            ) : (
+              <>
+                <circle cx="14" cy="9" r="1.8" fill="#111827" />
+                <circle cx="19" cy="9" r="1.8" fill="#111827" />
+                <circle cx="14.5" cy="8.5" r="0.6" fill="#fff" />
+                <circle cx="19.5" cy="8.5" r="0.6" fill="#fff" />
+              </>
+            )}
+            {/* Pena topete */}
+            <rect x="15" y="1" width="2" height="4" fill="#60a5fa" rx="1" />
+            <rect x="17" y="2" width="2" height="3" fill="#3b82f6" rx="1" />
+            {renderAccessoryOverlay()}
+          </svg>
+        );
+
+      case 'prea_pampa':
+        return (
+          <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+            {/* Corpo fofinho dos campos do Pampa */}
+            <ellipse cx="16" cy="19" rx="10" ry="8" fill="#a16207" />
+            <ellipse cx="16" cy="17" rx="7" ry="6" fill="#d97706" />
+            {/* Orelhinhas redondinhas */}
+            <circle cx="10" cy="9" r="3.2" fill="#a16207" />
+            <circle cx="22" cy="9" r="3.2" fill="#a16207" />
+            <circle cx="10" cy="9" r="1.6" fill="#fbbf24" />
+            <circle cx="22" cy="9" r="1.6" fill="#fbbf24" />
+            {/* Focinho e dentezinho de roedor */}
+            <rect x="12" y="14" width="8" height="7" fill="#fbbf24" rx="2.5" />
+            <rect x="15" y="19" width="2" height="2.2" fill="#ffffff" rx="0.5" />
+            {/* Olhos */}
+            {mood === 'happy' ? (
+              <>
+                <path d="M11 15 Q12.5 13 14 15" stroke="#451a03" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+                <path d="M18 15 Q19.5 13 21 15" stroke="#451a03" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+              </>
+            ) : mood === 'sad' ? (
+              <>
+                <rect x="11" y="15" width="2.5" height="2.5" fill="#451a03" />
+                <rect x="19" y="15" width="2.5" height="2.5" fill="#451a03" />
+              </>
+            ) : (
+              <>
+                <circle cx="12" cy="15.5" r="1.8" fill="#451a03" />
+                <circle cx="20" cy="15.5" r="1.8" fill="#451a03" />
+                <circle cx="12.5" cy="15" r="0.6" fill="#fff" />
+                <circle cx="20.5" cy="15" r="0.6" fill="#fff" />
+              </>
+            )}
+            {/* Pézinhos saltitantes */}
+            <rect x="10" y="25" width="3" height="3" fill="#a16207" rx="1" />
+            <rect x="19" y="25" width="3" height="3" fill="#a16207" rx="1" />
+            {renderAccessoryOverlay()}
+          </svg>
+        );
+
       default:
         return (
           <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
@@ -551,5 +745,30 @@ export function PetIcon({ petId, size = 64, mood = 'idle', accessoryId, classNam
     }
   };
 
-  return <div className="inline-block transition-transform hover:scale-105">{renderSvgContent()}</div>;
+  return (
+    <div className="relative inline-block transition-transform hover:scale-105">
+      {renderSvgContent()}
+      {evolutionStage === 2 && (
+        <span
+          className="absolute -top-1 -right-1 select-none pointer-events-none"
+          style={{ fontSize: Math.max(9, Math.round(size / 3.4)) }}
+          title="Pet evoluído! (nível 3+)"
+        >
+          ⭐
+        </span>
+      )}
+      {evolutionStage === 3 && (
+        <>
+          <span
+            className="absolute -top-1.5 -right-1.5 select-none pointer-events-none drop-shadow-[0_0_6px_rgba(250,204,21,0.95)]"
+            style={{ fontSize: Math.max(11, Math.round(size / 2.8)) }}
+            title="Evolução máxima! (nível 5)"
+          >
+            👑
+          </span>
+          <span className="absolute inset-0 rounded-full bg-yellow-400/10 pointer-events-none animate-pulse" />
+        </>
+      )}
+    </div>
+  );
 }

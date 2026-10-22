@@ -136,6 +136,52 @@ export const PET_CATALOG: Pet[] = [
     sprite_key: 'pet_sloth',
     base_power: 140,
   },
+  // ===== EXPANSÃO BIOMAS BRASILEIROS (Fase 4.1) =====
+  {
+    id: 'tatu_cerrado',
+    name: 'Bolinha',
+    species: 'Tatuzinho do Cerrado',
+    rarity: 'normal',
+    description: 'Um tatuzinho corajoso do Cerrado que vira uma bolinha de armadura quando precisa de coragem extra!',
+    sprite_key: 'pet_armadillo',
+    base_power: 14,
+  },
+  {
+    id: 'prea_pampa',
+    name: 'Saltitante',
+    species: 'Preá do Campo',
+    rarity: 'normal',
+    description: 'Um roedorzinho ágil do Pampa que salta de alegria com cada resposta certa sua!',
+    sprite_key: 'pet_prea',
+    base_power: 12,
+  },
+  {
+    id: 'tucano_mata',
+    name: 'Tuc',
+    species: 'Tucano da Mata Atlântica',
+    rarity: 'raro',
+    description: 'O guardião das cores da Mata Atlântica, com um bico gigante para anunciar suas vitórias!',
+    sprite_key: 'pet_toucan',
+    base_power: 32,
+  },
+  {
+    id: 'boto_amazonia',
+    name: 'Lumi',
+    species: 'Boto Cor-de-Rosa',
+    rarity: 'epico',
+    description: 'Um boto mágico dos rios da Amazônia que ilumina o caminho das respostas certas!',
+    sprite_key: 'pet_dolphin',
+    base_power: 60,
+  },
+  {
+    id: 'arara_pantanal',
+    name: 'Céu',
+    species: 'Arara Azul do Pantanal',
+    rarity: 'lendario',
+    description: 'A arara mais rara do Pantanal! Suas asas azuis carregam a sorte dos grandes campeões.',
+    sprite_key: 'pet_macaw',
+    base_power: 88,
+  },
 ];
 
 export const RARITY_LABELS: Record<string, { label: string; color: string; bg: string }> = {
