@@ -5,6 +5,7 @@ import { StudentProfile, Guardian, FocusModeSettings, Pet, SchoolGrade, UserPet,
 import { PET_CATALOG, ACCESSORY_CATALOG, INITIAL_QUESTS } from './content-data';
 import { supabase, isSupabaseConfigured } from './supabase';
 import { sounds } from './sound-effects';
+import { validateNickname } from './nickname-moderator';
 
 interface SignUpParams {
   guardianEmail: string;
@@ -16,6 +17,13 @@ interface SignUpParams {
   avatarPreset: string;
   selectedPetId: string;
   focusModeConsent?: boolean;
+}
+
+interface AddChildParams {
+  nickname: string;
+  grade: SchoolGrade;
+  avatarPreset: string;
+  selectedPetId: string;
 }
 
 interface AuthContextType {
@@ -30,6 +38,7 @@ interface AuthContextType {
   focusMode: FocusModeSettings;
   isLoading: boolean;
   isDemo: boolean;
+  familyProfiles: StudentProfile[];
   addPoints: (amount: number, reason: string) => void;
   setActivePet: (pet: Pet) => void;
   evolvePet: (petId: string) => { success: boolean; newLevel?: number; message?: string };
@@ -41,6 +50,8 @@ interface AuthContextType {
   toggleFocusMode: (active: boolean) => void;
   updateFocusSettings: (settings: Partial<FocusModeSettings>) => void;
   updateProfile: (updates: Partial<StudentProfile>) => void;
+  addChildProfile: (params: AddChildParams) => Promise<{ success: boolean; error?: string }>;
+  switchStudentProfile: (studentId: string) => Promise<{ success: boolean; error?: string }>;
   signUpStudent: (params: SignUpParams) => Promise<{ success: boolean; error?: string }>;
   loginStudent: (email: string, password?: string) => Promise<{ success: boolean; error?: string }>;
   loginAsDemo: (nickname?: string, grade?: SchoolGrade) => void;
@@ -125,6 +136,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [focusMode, setFocusMode] = useState<FocusModeSettings>(DEFAULT_FOCUS_SETTINGS);
   const [isLoading, setIsLoading] = useState(true);
   const [isDemo, setIsDemo] = useState(false);
+  const [familyProfiles, setFamilyProfiles] = useState<StudentProfile[]>([]);
   const [, startTransition] = useTransition();
 
   // Entra no modo demonstração local (usado quando o Supabase não está configurado)
@@ -165,37 +177,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Hidrata o estado local com os dados reais da conta em nuvem (perfil, saldo, guardião e pet ativo)
-  const hydrateFromServerSession = async (userId: string): Promise<boolean> => {
+  // Hidrata o estado local com os dados reais da conta em nuvem.
+  // Multi-perfil: carrega TODOS os perfis da família (o vínculo direto + filhos
+  // com guardian_id) e ativa o perfil salvo, o vínculo direto ou o primeiro.
+  const hydrateFromServerSession = async (userId: string, preferredStudentId?: string): Promise<boolean> => {
     try {
-      const { data: profData, error } = await supabase
+      const { data: rows, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', userId)
-        .single();
-      if (error || !profData) return false;
+        .or(`id.eq.${userId},guardian_id.eq.${userId}`)
+        .order('created_at', { ascending: true });
+      if (error || !rows || rows.length === 0) return false;
 
-      // Saldo real vem do livro-razão (view student_balances)
+      const savedActive =
+        preferredStudentId ||
+        (typeof window !== 'undefined' ? localStorage.getItem(`kids_active_student_${userId}`) : null);
+      const activeRow =
+        rows.find((r: { id: string }) => r.id === savedActive) ||
+        rows.find((r: { id: string }) => r.id === userId) ||
+        rows[0];
+
+      // Saldo real do aluno ativo vem do livro-razão (view student_balances)
       const { data: balanceData } = await supabase
         .from('student_balances')
         .select('balance_points')
-        .eq('student_id', userId)
+        .eq('student_id', activeRow.id)
         .single();
 
-      const profile: StudentProfile = {
-        id: profData.id,
-        nickname: profData.nickname,
-        school_grade: profData.school_grade as SchoolGrade,
-        avatar_preset: profData.avatar_preset,
-        avatar_url: profData.avatar_url,
-        level: profData.level || 1,
-        xp: profData.xp || 0,
+      const activeProfile: StudentProfile = {
+        id: activeRow.id,
+        nickname: activeRow.nickname,
+        school_grade: activeRow.school_grade as SchoolGrade,
+        avatar_preset: activeRow.avatar_preset,
+        avatar_url: activeRow.avatar_url,
+        level: activeRow.level || 1,
+        xp: activeRow.xp || 0,
         points: balanceData?.balance_points ?? 200,
-        streak_days: profData.streak_days || 1,
+        streak_days: activeRow.streak_days || 1,
       };
-      setProfile(profile);
+
+      const toStudentProfile = (r: { id: string; nickname: string; school_grade: number; avatar_preset: string; avatar_url?: string; level: number; xp: number; streak_days: number }): StudentProfile => ({
+        id: r.id,
+        nickname: r.nickname,
+        school_grade: r.school_grade as SchoolGrade,
+        avatar_preset: r.avatar_preset,
+        avatar_url: r.avatar_url,
+        level: r.level || 1,
+        xp: r.xp || 0,
+        points: r.id === activeRow.id ? activeProfile.points : 0,
+        streak_days: r.streak_days || 1,
+      });
+      setFamilyProfiles(rows.map(toStudentProfile));
+
+      setProfile(activeProfile);
       if (typeof window !== 'undefined') {
-        localStorage.setItem('kids_profile', JSON.stringify(profile));
+        localStorage.setItem('kids_profile', JSON.stringify(activeProfile));
+        localStorage.setItem(`kids_active_student_${userId}`, activeRow.id);
       }
 
       // Guardião legal da conta
@@ -211,11 +248,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      // Pet ativo em nuvem (user_pets com join para os detalhes do catálogo)
+      // Pet ativo do aluno ativo (user_pets com join para os detalhes do catálogo)
       const { data: activePetRow } = await supabase
         .from('user_pets')
         .select('pet_id, pets(*)')
-        .eq('student_id', userId)
+        .eq('student_id', activeRow.id)
         .eq('is_active', true)
         .single();
       const petData = (activePetRow as { pets?: Pet } | null)?.pets;
@@ -225,6 +262,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (typeof window !== 'undefined') {
           localStorage.setItem('kids_active_pet_id', pet.id);
         }
+      }
+
+      // Configuração do Modo Foco do aluno ativo (dado sensível: aluno + responsável)
+      const { data: focusRow } = await supabase
+        .from('focus_mode_settings')
+        .select('*')
+        .eq('student_id', activeRow.id)
+        .single();
+      if (focusRow) {
+        setFocusMode({ ...focusRow } as FocusModeSettings);
+      } else if (typeof window !== 'undefined') {
+        // Ainda sem linha no servidor: ao menos amarra o student_id correto
+        // para que a próxima sincronização crie a configuração do aluno certo.
+        setFocusMode(prev => ({ ...prev, student_id: activeRow.id }));
       }
 
       setIsDemo(false);
@@ -596,6 +647,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (typeof window !== 'undefined') {
         localStorage.setItem('kids_focus_settings', JSON.stringify(updated));
       }
+      // Conta real: sincroniza a configuração sensível do aluno ativo (RLS: aluno ou guardião)
+      if (isSupabaseConfigured && !isDemo && updated.student_id && !updated.student_id.startsWith('demo')) {
+        supabase
+          .from('focus_mode_settings')
+          .upsert({
+            student_id: updated.student_id,
+            is_active: updated.is_active,
+            guardian_consent: updated.guardian_consent || true,
+            session_duration_minutes: updated.session_duration_minutes,
+            reduced_stimuli: updated.reduced_stimuli,
+            tts_auto_read: updated.tts_auto_read,
+            pause_interval_minutes: updated.pause_interval_minutes,
+          })
+          .then(({ error }) => {
+            if (error) console.warn('Modo Foco não sincronizado com a nuvem:', error.message);
+          });
+      }
       return updated;
     });
   };
@@ -761,6 +829,76 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // MULTI-PERFIL (Fase 2.2): troca o aluno ativo da sessão do guardião
+  const switchStudentProfile = async (studentId: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return { success: false, error: 'Sessão expirada. Entre novamente.' };
+      if (studentId === profile?.id) return { success: true };
+      const ok = await hydrateFromServerSession(user.id, studentId);
+      if (!ok) return { success: false, error: 'Não foi possível carregar este perfil.' };
+      return { success: true };
+    } catch (err: unknown) {
+      return { success: false, error: err instanceof Error ? err.message : 'Falha ao trocar de perfil' };
+    }
+  };
+
+  // MULTI-PERFIL (Fase 2.2): cadastra um novo filho sob o guardião autenticado
+  const addChildProfile = async (params: AddChildParams): Promise<{ success: boolean; error?: string }> => {
+    const validation = validateNickname(params.nickname);
+    if (!validation.isValid) return { success: false, error: validation.message };
+
+    if (!isSupabaseConfigured || isDemo) {
+      return { success: false, error: 'A gestão de família multi-perfil requer a conta real conectada.' };
+    }
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return { success: false, error: 'Sessão expirada. Entre novamente.' };
+
+      const childId = crypto.randomUUID();
+      const { error: profErr } = await supabase.from('profiles').insert({
+        id: childId,
+        guardian_id: user.id,
+        nickname: params.nickname,
+        school_grade: params.grade,
+        avatar_preset: params.avatarPreset,
+        level: 1,
+        xp: 0,
+        streak_days: 1,
+      });
+      if (profErr) return { success: false, error: profErr.message };
+
+      await supabase.from('user_pets').insert({
+        student_id: childId,
+        pet_id: params.selectedPetId,
+        is_active: true,
+      });
+
+      const { error: bonusErr } = await supabase.rpc('apply_points_transaction', {
+        p_student_id: childId,
+        p_amount: 200,
+        p_reason: 'welcome_bonus',
+      });
+      if (bonusErr) console.warn('Bônus de boas-vindas do filho não creditado:', bonusErr.message);
+
+      const newChild: StudentProfile = {
+        id: childId,
+        nickname: params.nickname,
+        school_grade: params.grade,
+        avatar_preset: params.avatarPreset,
+        level: 1,
+        xp: 0,
+        points: 200,
+        streak_days: 1,
+      };
+      setFamilyProfiles(prev => [...prev, newChild]);
+      return { success: true };
+    } catch (err: unknown) {
+      return { success: false, error: err instanceof Error ? err.message : 'Falha ao cadastrar o filho' };
+    }
+  };
+
   const logout = () => {
     if (isSupabaseConfigured) {
       supabase.auth.signOut();
@@ -781,6 +919,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUserAccessories([]);
     setEquippedAccessoryId(null);
     setQuests(INITIAL_QUESTS);
+    setFamilyProfiles([]);
   };
 
   return (
@@ -797,6 +936,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         focusMode,
         isLoading,
         isDemo,
+        familyProfiles,
         addPoints,
         setActivePet,
         evolvePet,
@@ -808,6 +948,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         toggleFocusMode,
         updateFocusSettings,
         updateProfile,
+        addChildProfile,
+        switchStudentProfile,
         signUpStudent,
         loginStudent,
         loginAsDemo,

@@ -1,14 +1,39 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../lib/auth-context';
 import { sounds } from '../../lib/sound-effects';
 import { PixelButton } from '../../components/PixelButton';
+import { PetIcon } from '../../components/PetIcon';
+import { supabase, isSupabaseConfigured } from '../../lib/supabase';
+import { SUBJECTS, AVATAR_PRESETS, PET_CATALOG } from '../../lib/content-data';
+import { validateNickname } from '../../lib/nickname-moderator';
 import {
   ShieldCheck, Clock, Award, BookOpen, Heart, Settings,
   AlertTriangle,
-  Lightbulb, UserCheck
+  Lightbulb, UserCheck, Users, Plus
 } from 'lucide-react';
+
+interface SessionRow {
+  game_type: string;
+  subject_id: string | null;
+  duration_seconds: number;
+  accuracy_percent: number | null;
+  points_earned: number;
+  created_at: string;
+}
+
+// Cores do gráfico de distribuição por matéria (paleta do design system)
+const SUBJECT_COLORS: Record<string, string> = {
+  matematica: 'bg-cyan-500',
+  portugues: 'bg-pink-500',
+  ciencias: 'bg-emerald-500',
+  historia_geografia: 'bg-yellow-500',
+  ingles: 'bg-purple-500',
+  digitacao: 'bg-orange-500',
+};
+
+const subjectName = (id: string) => SUBJECTS.find(s => s.id === id)?.name || id;
 
 export default function ResponsavelPage() {
   const {
@@ -16,7 +41,11 @@ export default function ResponsavelPage() {
     guardian,
     focusMode,
     updateFocusSettings,
-    toggleFocusMode
+    toggleFocusMode,
+    isDemo,
+    familyProfiles,
+    addChildProfile,
+    switchStudentProfile
   } = useAuth();
 
   const [savedNotice, setSavedNotice] = useState(false);
@@ -25,6 +54,85 @@ export default function ResponsavelPage() {
   const [ttsEnabled, setTtsEnabled] = useState(focusMode.tts_auto_read);
   const [reducedStimuli, setReducedStimuli] = useState(focusMode.reduced_stimuli);
   const [confirmResetModal, setConfirmResetModal] = useState(false);
+
+  // MÉTRICAS REAIS (Fase 2.4): sessões de jogo do aluno ativo no servidor.
+  // Padrão sem setState-in-effect: o efeito só grava no retorno da promessa e a
+  // derivação abaixo invalida automaticamente quando o aluno ativo muda.
+  const [statsByStudent, setStatsByStudent] = useState<{ studentId: string; rows: SessionRow[] } | null>(null);
+  const statsAreCurrent = !isDemo && isSupabaseConfigured && !!profile?.id && statsByStudent?.studentId === profile.id;
+  const sessions: SessionRow[] = statsAreCurrent ? statsByStudent!.rows : [];
+  const isLoadingStats = !isDemo && isSupabaseConfigured && !!profile?.id && !statsAreCurrent;
+
+  useEffect(() => {
+    const studentId = profile?.id;
+    if (!studentId || isDemo || !isSupabaseConfigured) return;
+    let cancelled = false;
+    supabase
+      .from('game_sessions')
+      .select('game_type, subject_id, duration_seconds, accuracy_percent, points_earned, created_at')
+      .eq('student_id', studentId)
+      .order('created_at', { ascending: false })
+      .limit(300)
+      .then(({ data }) => {
+        if (cancelled) return;
+        setStatsByStudent({ studentId, rows: (data as SessionRow[] | null) || [] });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [profile?.id, isDemo]);
+
+  // Métricas derivadas das sessões reais
+  const totalMinutes = Math.round(sessions.reduce((acc, s) => acc + (s.duration_seconds || 0), 0) / 60);
+  const withAccuracy = sessions.filter(s => (s.accuracy_percent ?? 0) > 0);
+  const avgAccuracy = withAccuracy.length
+    ? Math.round(withAccuracy.reduce((acc, s) => acc + (s.accuracy_percent || 0), 0) / withAccuracy.length)
+    : 0;
+  const bySubject = new Map<string, number>();
+  sessions.forEach(s => {
+    const key = s.subject_id || 'outros';
+    bySubject.set(key, (bySubject.get(key) || 0) + 1);
+  });
+  const topSubjectId = [...bySubject.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+  const topSubject = SUBJECTS.find(s => s.id === topSubjectId) || null;
+
+  // MULTI-PERFIL (Fase 2.2): modal de novo filho
+  const [showAddChild, setShowAddChild] = useState(false);
+  const [newChildNickname, setNewChildNickname] = useState('');
+  const [newChildGrade, setNewChildGrade] = useState<3 | 4>(3);
+  const [newChildAvatar, setNewChildAvatar] = useState(AVATAR_PRESETS[0]?.id || 'astro_kid');
+  const [newChildPetId, setNewChildPetId] = useState(PET_CATALOG[0]?.id || 'pipoca_raposa');
+  const [addChildError, setAddChildError] = useState('');
+  const [isAddingChild, setIsAddingChild] = useState(false);
+
+  const handleAddChild = async () => {
+    const validation = validateNickname(newChildNickname);
+    if (!validation.isValid) {
+      setAddChildError(validation.message || 'Escolha outro apelido divertido.');
+      return;
+    }
+    setIsAddingChild(true);
+    const res = await addChildProfile({
+      nickname: newChildNickname,
+      grade: newChildGrade,
+      avatarPreset: newChildAvatar,
+      selectedPetId: newChildPetId,
+    });
+    setIsAddingChild(false);
+    if (!res.success) {
+      setAddChildError(res.error || 'Não foi possível cadastrar o filho.');
+      return;
+    }
+    sounds.playSuccess();
+    setShowAddChild(false);
+    setNewChildNickname('');
+    setAddChildError('');
+  };
+
+  const handleSwitchChild = async (studentId: string) => {
+    sounds.playClick();
+    await switchStudentProfile(studentId);
+  };
 
   const handleSaveSettings = () => {
     sounds.playSuccess();
@@ -89,10 +197,90 @@ export default function ResponsavelPage() {
       )}
 
       {/* ============================================================== */}
-      {/* 4 CARDS DE MÉTRICAS REAIS DA SEMANA */}
+      {/* FILHOS & PERFIS DA FAMÍLIA (MULTI-PERFIL — FASE 2.2) */}
+      {/* ============================================================== */}
+      <div className="pixel-box bg-slate-900/90 p-6 mb-8 border-fuchsia-500/70">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+          <h3 className="font-pixel text-xs sm:text-sm text-fuchsia-300 flex items-center gap-2">
+            <Users size={16} />
+            FILHOS & PERFIS DA FAMÍLIA
+          </h3>
+          {!isDemo && isSupabaseConfigured ? (
+            <PixelButton
+              variant="primary"
+              size="sm"
+              onClick={() => {
+                sounds.playClick();
+                setAddChildError('');
+                setShowAddChild(true);
+              }}
+              icon={<Plus size={14} />}
+            >
+              ADICIONAR FILHO
+            </PixelButton>
+          ) : (
+            <span className="text-[10px] text-slate-500 max-w-[220px] text-right">
+              Conecte a conta real para gerenciar vários filhos
+            </span>
+          )}
+        </div>
+
+        {isDemo ? (
+          <p className="text-xs text-slate-400">
+            No modo demonstração o painel usa um único perfil local. Crie uma conta real para cadastrar a família completa! ✨
+          </p>
+        ) : familyProfiles.length === 0 ? (
+          <p className="text-xs text-slate-400">Nenhum perfil de filho vinculado a esta conta ainda.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {familyProfiles.map(child => {
+              const isActive = child.id === profile?.id;
+              return (
+                <div
+                  key={child.id}
+                  className={`p-3 rounded-xl border-2 flex items-center gap-3 transition-all ${
+                    isActive
+                      ? 'bg-fuchsia-950/60 border-fuchsia-400 shadow-[0_0_10px_rgba(232,121,249,0.25)]'
+                      : 'bg-slate-950 border-slate-800 hover:border-slate-600'
+                  }`}
+                >
+                  <div className="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-xl shrink-0" aria-hidden="true">
+                    {AVATAR_PRESETS.find(a => a.id === child.avatar_preset)?.icon_name || '🙂'}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="font-pixel text-[11px] text-white block truncate">
+                      {child.nickname}
+                    </span>
+                    <span className="text-[10px] text-slate-400 block">
+                      {child.school_grade}º ano · Nível {child.level} · {child.streak_days}d 🔥
+                    </span>
+                  </div>
+                  {isActive ? (
+                    <span className="text-[10px] font-pixel text-fuchsia-300 shrink-0" title="Perfil em jogo agora">
+                      ATIVO ★
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handleSwitchChild(child.id)}
+                      className="text-[10px] font-pixel bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 px-2 py-1 rounded-lg shrink-0 transition-colors"
+                      aria-label={`Tornar ${child.nickname} o perfil ativo`}
+                    >
+                      USAR
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ============================================================== */}
+      {/* 4 CARDS DE MÉTRICAS REAIS (servidor, aluno ativo) */}
       {/* ============================================================== */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        
+
         {/* Tempo de Estudo */}
         <div className="pixel-box bg-slate-900/90 p-4 border-cyan-500/60">
           <div className="flex items-center justify-between text-cyan-400 mb-2">
@@ -100,10 +288,10 @@ export default function ResponsavelPage() {
             <Clock size={16} />
           </div>
           <div className="font-pixel text-xl text-cyan-300 mb-1">
-            85 Minutos
+            {totalMinutes} Minuto{totalMinutes === 1 ? '' : 's'}
           </div>
           <p className="text-[10px] text-slate-400">
-            Nesta semana em sessões ativas de minijogos.
+            {isLoadingStats ? 'Somando sessões...' : `${sessions.length} sessõe${sessions.length === 1 ? '' : 's'} registrada${sessions.length === 1 ? '' : 's'} no servidor.`}
           </p>
         </div>
 
@@ -114,10 +302,10 @@ export default function ResponsavelPage() {
             <Award size={16} />
           </div>
           <div className="font-pixel text-xl text-emerald-300 mb-1">
-            88% Acertos
+            {avgAccuracy}% Acertos
           </div>
           <p className="text-[10px] text-slate-400">
-            Excelente aproveitamento em 1ª tentativa!
+            {avgAccuracy >= 80 ? 'Excelente aproveitamento em 1ª tentativa!' : avgAccuracy > 0 ? 'Cada tentativa deixa o raciocínio mais forte!' : 'Jogue minijogos para gerar o histórico de precisão.'}
           </p>
         </div>
 
@@ -127,11 +315,11 @@ export default function ResponsavelPage() {
             <span className="font-pixel text-[10px]">DESTAQUE</span>
             <BookOpen size={16} />
           </div>
-          <div className="font-pixel text-lg text-yellow-300 mb-1">
-            Matemática
+          <div className="font-pixel text-lg text-yellow-300 mb-1 truncate">
+            {topSubject ? topSubject.name : 'Explorando tudo ✨'}
           </div>
           <p className="text-[10px] text-slate-400">
-            {profile?.school_grade}º Ano: Tabuada e Cálculos.
+            {topSubject ? `${profile?.school_grade}º Ano · ${topSubject.bncc_focus}.` : 'A matéria favorita aparece após os primeiros jogos.'}
           </p>
         </div>
 
@@ -152,7 +340,7 @@ export default function ResponsavelPage() {
       </div>
 
       {/* ============================================================== */}
-      {/* DISTRIBUIÇÃO PEDAGÓGICA POR MATÉRIA (BNCC) */}
+      {/* DISTRIBUIÇÃO PEDAGÓGICA POR MATÉRIA (BNCC) — DADOS REAIS */}
       {/* ============================================================== */}
       <div className="pixel-box bg-slate-900/90 p-6 mb-8 border-indigo-500/70">
         <h3 className="font-pixel text-xs sm:text-sm text-indigo-300 mb-4 flex items-center gap-2">
@@ -160,38 +348,45 @@ export default function ResponsavelPage() {
           DISTRIBUIÇÃO DO TEMPO POR MATÉRIA ESCOLAR
         </h3>
 
-        {/* Barra de Distribuição Horizontal */}
-        <div className="w-full h-5 rounded-full overflow-hidden flex border-2 border-slate-950 shadow-inner mb-4">
-          <div style={{ width: '35%' }} className="bg-cyan-500" title="Matemática: 35%" />
-          <div style={{ width: '30%' }} className="bg-pink-500" title="Língua Portuguesa: 30%" />
-          <div style={{ width: '15%' }} className="bg-emerald-500" title="Ciências: 15%" />
-          <div style={{ width: '10%' }} className="bg-purple-500" title="Inglês: 10%" />
-          <div style={{ width: '10%' }} className="bg-orange-500" title="Digitação: 10%" />
-        </div>
+        {bySubject.size === 0 ? (
+          <p className="text-xs text-slate-400">
+            Nenhuma sessão registrada ainda — a distribuição aparece conforme {profile?.nickname || 'seu filho(a)'} joga os minijogos. 🎮
+          </p>
+        ) : (
+          <>
+            {/* Barra de Distribuição Horizontal (percentuais reais) */}
+            <div className="w-full h-5 rounded-full overflow-hidden flex border-2 border-slate-950 shadow-inner mb-4">
+              {[...bySubject.entries()].map(([subjectId, count]) => {
+                const pct = Math.round((count / sessions.length) * 100);
+                return (
+                  <div
+                    key={subjectId}
+                    style={{ width: `${pct}%` }}
+                    className={SUBJECT_COLORS[subjectId] || 'bg-slate-500'}
+                    title={`${subjectName(subjectId)}: ${pct}% (${count} sessões)`}
+                  />
+                );
+              })}
+            </div>
 
-        {/* Legendas e Detalhes */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-cyan-500 shrink-0" />
-            <span className="text-slate-300">Matemática (35%)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-pink-500 shrink-0" />
-            <span className="text-slate-300">Português (30%)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-emerald-500 shrink-0" />
-            <span className="text-slate-300">Ciências (15%)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-purple-500 shrink-0" />
-            <span className="text-slate-300">Inglês (10%)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-orange-500 shrink-0" />
-            <span className="text-slate-300">Digitação (10%)</span>
-          </div>
-        </div>
+            {/* Legendas e Detalhes */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 text-xs">
+              {[...bySubject.entries()]
+                .sort((a, b) => b[1] - a[1])
+                .map(([subjectId, count]) => {
+                  const pct = Math.round((count / sessions.length) * 100);
+                  return (
+                    <div key={subjectId} className="flex items-center gap-2">
+                      <div className={`w-3 h-3 rounded-full shrink-0 ${SUBJECT_COLORS[subjectId] || 'bg-slate-500'}`} />
+                      <span className="text-slate-300 truncate">
+                        {subjectName(subjectId)} ({pct}%)
+                      </span>
+                    </div>
+                  );
+                })}
+            </div>
+          </>
+        )}
       </div>
 
       {/* ============================================================== */}
@@ -388,6 +583,126 @@ export default function ResponsavelPage() {
 
         </div>
       </div>
+
+      {/* MODAL: ADICIONAR FILHO (MULTI-PERFIL) */}
+      {showAddChild && (
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="pixel-box bg-slate-900 max-w-lg w-full p-6 border-fuchsia-500 animate-scale-up max-h-[90vh] overflow-y-auto">
+            <h2 className="font-pixel text-base text-fuchsia-300 mb-2">
+              NOVO FILHO NA FAMÍLIA ✨
+            </h2>
+            <p className="text-[11px] text-slate-400 mb-5">
+              Crie o perfil de aventura do seu filho. Ele ganha 200 moedas de boas-vindas e um PET companheiro!
+            </p>
+
+            {/* Apelido moderado */}
+            <label className="text-xs font-bold text-white block mb-1" htmlFor="novo-filho-apelido">
+              Apelido de herói (sem dados reais, conforme o ECA):
+            </label>
+            <input
+              id="novo-filho-apelido"
+              type="text"
+              maxLength={20}
+              value={newChildNickname}
+              onChange={e => {
+                setNewChildNickname(e.target.value);
+                setAddChildError('');
+              }}
+              placeholder="Ex.: DinossauroAzul"
+              className="w-full bg-slate-950 border-2 border-slate-700 focus:border-fuchsia-400 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-slate-600 mb-4"
+            />
+
+            {/* Série */}
+            <span className="text-xs font-bold text-white block mb-1.5">Ano escolar:</span>
+            <div className="flex gap-2 mb-4">
+              {[3, 4].map(g => (
+                <button
+                  key={g}
+                  type="button"
+                  onClick={() => setNewChildGrade(g as 3 | 4)}
+                  className={`font-pixel text-xs px-4 py-2 rounded-xl border-2 transition-all ${
+                    newChildGrade === g
+                      ? 'bg-fuchsia-500 text-slate-950 border-fuchsia-300'
+                      : 'bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-500'
+                  }`}
+                >
+                  {g}º ANO
+                </button>
+              ))}
+            </div>
+
+            {/* Avatar */}
+            <span className="text-xs font-bold text-white block mb-1.5">Avatar:</span>
+            <div className="grid grid-cols-4 sm:grid-cols-8 gap-2 mb-4">
+              {AVATAR_PRESETS.map(a => (
+                <button
+                  key={a.id}
+                  type="button"
+                  onClick={() => setNewChildAvatar(a.id)}
+                  title={a.name}
+                  aria-label={`Escolher avatar ${a.name}`}
+                  className={`aspect-square rounded-xl border-2 flex items-center justify-center text-2xl transition-all ${
+                    newChildAvatar === a.id
+                      ? 'bg-fuchsia-500/20 border-fuchsia-400 scale-105'
+                      : 'bg-slate-950 border-slate-800 hover:border-slate-600'
+                  }`}
+                >
+                  {a.icon_name}
+                </button>
+              ))}
+            </div>
+
+            {/* Pet inicial */}
+            <span className="text-xs font-bold text-white block mb-1.5">PET companheiro:</span>
+            <div className="grid grid-cols-5 gap-2 mb-5">
+              {PET_CATALOG.slice(0, 5).map(p => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => setNewChildPetId(p.id)}
+                  title={p.name}
+                  aria-label={`Escolher pet ${p.name}`}
+                  className={`aspect-square rounded-xl border-2 flex items-center justify-center transition-all ${
+                    newChildPetId === p.id
+                      ? 'bg-fuchsia-500/20 border-fuchsia-400 scale-105'
+                      : 'bg-slate-950 border-slate-800 hover:border-slate-600'
+                  }`}
+                >
+                  <PetIcon petId={p.id} size={36} />
+                </button>
+              ))}
+            </div>
+
+            {addChildError && (
+              <p className="text-[11px] text-rose-300 bg-rose-950/60 border border-rose-700 rounded-lg px-3 py-2 mb-4">
+                ⚠️ {addChildError}
+              </p>
+            )}
+
+            <div className="flex items-center justify-end gap-3">
+              <PixelButton
+                variant="dark"
+                size="sm"
+                onClick={() => {
+                  sounds.playClick();
+                  setShowAddChild(false);
+                  setAddChildError('');
+                }}
+              >
+                CANCELAR
+              </PixelButton>
+              <PixelButton
+                variant="primary"
+                size="sm"
+                onClick={handleAddChild}
+                disabled={isAddingChild || newChildNickname.trim().length < 3}
+              >
+                {isAddingChild ? 'CRIANDO...' : 'CRIAR PERFIL 🚀'}
+              </PixelButton>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* MODAL DE CONFIRMAÇÃO DE RESET */}
       {confirmResetModal && (
