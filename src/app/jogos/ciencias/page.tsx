@@ -7,6 +7,7 @@ import { QUESTION_BANK } from '../../../lib/content-data';
 import { Question } from '../../../lib/types';
 import { speakText } from '../../../lib/speech';
 import { sounds } from '../../../lib/sound-effects';
+import { nextDifficulty } from '../../../lib/game-logic';
 import { PixelButton } from '../../../components/PixelButton';
 import { PetIcon } from '../../../components/PetIcon';
 import {
@@ -18,7 +19,6 @@ import confetti from 'canvas-confetti';
 export default function CienciasGamePage() {
   const { activePet, focusMode, addPoints } = useAuth();
 
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
@@ -27,12 +27,31 @@ export default function CienciasGamePage() {
   const [showRestModal, setShowRestModal] = useState(false);
   const [isCompletedSession, setIsCompletedSession] = useState(false);
 
+  // DIFICULDADE ADAPTATIVA (Fase 3.4): 2 acertos seguidos sobem o "nível do herói",
+  // erro desce — e as próximas perguntas são sorteadas dentro do nível atual.
+  const SESSION_LENGTH = 10;
+  const [answeredCount, setAnsweredCount] = useState(0);
+  const [heroLevel, setHeroLevel] = useState<1 | 2 | 3>(1);
+  const [correctStreak, setCorrectStreak] = useState(0);
+  const [servedIds, setServedIds] = useState<string[]>([]);
+
   // Filtra perguntas de ciências para a série do aluno ou padrão
   const scienceQuestions: Question[] = QUESTION_BANK.filter(
     q => q.subject_id === 'ciencias'
   );
 
-  const currentQ: Question = scienceQuestions[currentIndex] || scienceQuestions[0];
+  const [currentQ, setCurrentQ] = useState<Question>(() => scienceQuestions[0]);
+
+
+  // Sorteia a próxima pergunta respeitando o nível adaptativo do herói
+  const serveQuestion = (level: 1 | 2 | 3): Question => {
+    const seen = [...servedIds, currentQ.id];
+    const unused = scienceQuestions.filter(q => !seen.includes(q.id));
+    const base = unused.length > 0 ? unused : scienceQuestions;
+    const atLevel = base.filter(q => q.difficulty === level);
+    const pool = atLevel.length > 0 ? atLevel : base;
+    return pool[Math.floor(Math.random() * pool.length)];
+  };
 
   // Leitura em voz alta do enunciado atual
   const handleReadQuestion = () => {
@@ -48,7 +67,7 @@ export default function CienciasGamePage() {
       }, 400);
       return () => clearTimeout(timer);
     }
-  }, [currentIndex, currentQ, focusMode.is_active, focusMode.tts_auto_read]);
+  }, [answeredCount, currentQ, focusMode.is_active, focusMode.tts_auto_read]);
 
   const handleSelectOption = (optionText: string, optionId: string) => {
     if (isAnswered) return;
@@ -58,6 +77,11 @@ export default function CienciasGamePage() {
 
     const correct = optionText === currentQ.correct_answer;
     setIsCorrect(correct);
+
+    // Dificuldade adaptativa: sequência de acertos sobe o nível, erro desce
+    const newStreak = correct ? correctStreak + 1 : 0;
+    setCorrectStreak(newStreak);
+    setHeroLevel(prev => nextDifficulty(prev, correct, newStreak));
 
     if (correct) {
       sounds.playSuccess();
@@ -78,21 +102,27 @@ export default function CienciasGamePage() {
     }
   };
 
+  const advanceToNextQuestion = () => {
+    setServedIds(prev => [...prev, currentQ.id]);
+    setCurrentQ(serveQuestion(heroLevel));
+  };
+
   const handleNext = () => {
     sounds.playClick();
     setSelectedOptionId(null);
     setIsAnswered(false);
     setIsCorrect(false);
 
-    // Pausa do Modo Foco após 4 tarefas
-    if (focusMode.is_active && (currentIndex + 1) % 4 === 0 && currentIndex + 1 < scienceQuestions.length) {
+    const nextCount = answeredCount + 1;
+    setAnsweredCount(nextCount);
+
+    // Pausa do Modo Foco a cada 4 tarefas
+    if (focusMode.is_active && nextCount % 4 === 0 && nextCount < SESSION_LENGTH) {
       setShowRestModal(true);
       return;
     }
 
-    if (currentIndex + 1 < scienceQuestions.length) {
-      setCurrentIndex(prev => prev + 1);
-    } else {
+    if (nextCount >= SESSION_LENGTH) {
       setIsCompletedSession(true);
       sounds.playFanfare();
       confetti({
@@ -100,12 +130,19 @@ export default function CienciasGamePage() {
         spread: 70,
         origin: { y: 0.6 }
       });
+      return;
     }
+
+    advanceToNextQuestion();
   };
 
   const handleRestart = () => {
     sounds.playClick();
-    setCurrentIndex(0);
+    setAnsweredCount(0);
+    setHeroLevel(1);
+    setCorrectStreak(0);
+    setServedIds([]);
+    setCurrentQ(scienceQuestions[0]);
     setSelectedOptionId(null);
     setIsAnswered(false);
     setIsCorrect(false);
@@ -140,7 +177,14 @@ export default function CienciasGamePage() {
           </div>
 
           <div className="bg-slate-900 border-2 border-slate-800 px-3 py-1.5 rounded-xl text-xs font-pixel text-emerald-300">
-            {currentIndex + 1} / {scienceQuestions.length}
+            {Math.min(answeredCount + 1, SESSION_LENGTH)} / {SESSION_LENGTH}
+          </div>
+
+          <div
+            className="bg-slate-900 border-2 border-amber-600/60 px-3 py-1.5 rounded-xl text-xs font-pixel text-amber-300"
+            title="Nível do herói: 2 acertos seguidos sobem, erro desce"
+          >
+            {'⭐'.repeat(heroLevel)}
           </div>
         </div>
       </div>
@@ -178,7 +222,7 @@ export default function CienciasGamePage() {
               onClick={() => {
                 sounds.playClick();
                 setShowRestModal(false);
-                setCurrentIndex(prev => prev + 1);
+                advanceToNextQuestion();
               }}
             >
               CONTINUAR EXPERIMENTOS 🧪
@@ -323,7 +367,7 @@ export default function CienciasGamePage() {
                 onClick={handleNext}
                 icon={<ArrowRight size={18} />}
               >
-                {currentIndex + 1 === scienceQuestions.length ? 'VER RESULTADO FINAL' : 'PRÓXIMO EXPERIMENTO'}
+                {answeredCount + 1 >= SESSION_LENGTH ? 'VER RESULTADO FINAL' : 'PRÓXIMO EXPERIMENTO'}
               </PixelButton>
             </div>
           )}

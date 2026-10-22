@@ -8,3 +8,4 @@ export { INITIAL_QUESTS } from './quests';
 export { QUESTION_BANK } from './questions';
 export { ENGLISH_VOCABULARY, type EnglishWordItem } from './english';
 export { ACHIEVEMENTS_CATALOG } from './achievements';
+export { TALE_CATALOG, type Tale, type TalePage, type TaleQuestion } from './tales';

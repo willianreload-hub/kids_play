@@ -5,6 +5,7 @@ const routes = [
   '/cadastro',
   '/login',
   '/jogos',
+  '/contos',
   '/jogos/tabuada-espacial',
   '/jogos/biomas',
   '/jogos/fracoes',

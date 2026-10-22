@@ -8,6 +8,7 @@ import { Question } from '../../../lib/types';
 import { PixelButton } from '../../../components/PixelButton';
 import { PetIcon } from '../../../components/PetIcon';
 import { sounds } from '../../../lib/sound-effects';
+import { nextDifficulty } from '../../../lib/game-logic';
 import { speakText, stopSpeaking } from '../../../lib/speech';
 import {
   Volume2, ArrowLeft, Trophy,
@@ -24,7 +25,6 @@ export default function PortuguesGamePage() {
     q => q.subject_id === 'portugues' && q.grade === studentGrade
   );
 
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [isJumping, setIsJumping] = useState(false);
   const [feedback, setFeedback] = useState<{ isCorrect: boolean; message: string } | null>(null);
@@ -33,7 +33,25 @@ export default function PortuguesGamePage() {
   const [roundCompleted, setRoundCompleted] = useState(false);
   const [showFocusPauseModal, setShowFocusPauseModal] = useState(false);
 
-  const currentQ: Question = questionsList[currentIndex] || questionsList[0];
+  // DIFICULDADE ADAPTATIVA (Fase 3.4): 2 acertos seguidos sobem o "nível do herói",
+  // erro desce — e a próxima ilha é sorteada dentro do nível atual.
+  const SESSION_LENGTH = 10;
+  const [answeredCount, setAnsweredCount] = useState(0);
+  const [heroLevel, setHeroLevel] = useState<1 | 2 | 3>(1);
+  const [correctStreak, setCorrectStreak] = useState(0);
+  const [servedIds, setServedIds] = useState<string[]>([]);
+
+  const [currentQ, setCurrentQ] = useState<Question>(() => questionsList[0]);
+
+  // Sorteia a próxima pergunta respeitando o nível adaptativo do herói
+  const serveQuestion = (level: 1 | 2 | 3): Question => {
+    const seen = [...servedIds, currentQ.id];
+    const unused = questionsList.filter(q => !seen.includes(q.id));
+    const base = unused.length > 0 ? unused : questionsList;
+    const atLevel = base.filter(q => q.difficulty === level);
+    const pool = atLevel.length > 0 ? atLevel : base;
+    return pool[Math.floor(Math.random() * pool.length)];
+  };
 
   // Leitura automática no Modo Foco ao mudar de pergunta
   useEffect(() => {
@@ -41,7 +59,7 @@ export default function PortuguesGamePage() {
       const textToSpeak = currentQ.audio_prompt_text || currentQ.prompt;
       speakText(textToSpeak, 'pt-BR');
     }
-  }, [currentIndex, focusMode.is_active, focusMode.tts_auto_read, currentQ]);
+  }, [answeredCount, focusMode.is_active, focusMode.tts_auto_read, currentQ]);
 
   // Função para ler o enunciado sob demanda
   const handleListenQuestion = () => {
@@ -62,6 +80,11 @@ export default function PortuguesGamePage() {
     setTimeout(() => {
       setIsJumping(false);
       const isRight = optionText.trim().toLowerCase() === currentQ.correct_answer.trim().toLowerCase();
+
+      // Dificuldade adaptativa: sequência de acertos sobe o nível, erro desce
+      const newStreak = isRight ? correctStreak + 1 : 0;
+      setCorrectStreak(newStreak);
+      setHeroLevel(prev => nextDifficulty(prev, isRight, newStreak));
 
       if (isRight) {
         sounds.playSuccess();
@@ -100,24 +123,33 @@ export default function PortuguesGamePage() {
     setFeedback(null);
     setSelectedOptionId(null);
 
+    const nextCount = answeredCount + 1;
+    setAnsweredCount(nextCount);
+
     // No Modo Foco, microsessões de 4 saltos ativam a pausa guiada
-    if (focusMode.is_active && (currentIndex + 1) >= 4) {
+    if (focusMode.is_active && nextCount >= 4 && nextCount < SESSION_LENGTH) {
       setShowFocusPauseModal(true);
       return;
     }
 
-    if (currentIndex + 1 < questionsList.length) {
-      setCurrentIndex(prev => prev + 1);
-    } else {
+    if (nextCount >= SESSION_LENGTH) {
       sounds.playLevelUp();
       setRoundCompleted(true);
+      return;
     }
+
+    setServedIds(prev => [...prev, currentQ.id]);
+    setCurrentQ(serveQuestion(heroLevel));
   };
 
   // Reiniciar partida
   const handleRestart = () => {
     sounds.playClick();
-    setCurrentIndex(0);
+    setAnsweredCount(0);
+    setHeroLevel(1);
+    setCorrectStreak(0);
+    setServedIds([]);
+    setCurrentQ(questionsList[0]);
     setScore(0);
     setBridgesCrossed(0);
     setFeedback(null);
@@ -242,13 +274,18 @@ export default function PortuguesGamePage() {
           {/* Barra de Etapas */}
           <div className="mb-4">
             <div className="flex items-center justify-between text-xs font-pixel text-slate-300 mb-1.5">
-              <span>ILHA {currentIndex + 1} DE {focusMode.is_active ? 4 : questionsList.length}</span>
+              <span>
+                ILHA {Math.min(answeredCount + 1, SESSION_LENGTH)} DE {SESSION_LENGTH}
+                <span className="ml-2 text-amber-300" title="Nível do herói: 2 acertos seguidos sobem, erro desce">
+                  {'⭐'.repeat(heroLevel)}
+                </span>
+              </span>
               <span className="text-pink-400">Pontes Conquistadas: {bridgesCrossed}</span>
             </div>
             <div className="w-full h-3 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
               <div
                 className="h-full bg-gradient-to-r from-pink-500 to-purple-400 transition-all duration-300"
-                style={{ width: `${((currentIndex + 1) / (focusMode.is_active ? 4 : questionsList.length)) * 100}%` }}
+                style={{ width: `${(Math.min(answeredCount + 1, SESSION_LENGTH) / SESSION_LENGTH) * 100}%` }}
               />
             </div>
           </div>
