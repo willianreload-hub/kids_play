@@ -4,10 +4,11 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../../../lib/auth-context';
 import { ENGLISH_VOCABULARY, EnglishWordItem } from '../../../lib/content-data';
-import { speakText, startVoiceRecognition, isSpeechRecognitionSupported } from '../../../lib/speech';
+import { speakText, stopSpeaking, startVoiceRecognition, isSpeechRecognitionSupported } from '../../../lib/speech';
 import { sounds } from '../../../lib/sound-effects';
 import { PixelButton } from '../../../components/PixelButton';
 import { PetIcon } from '../../../components/PetIcon';
+import { EnglishMemoryGame } from '../../../components/EnglishMemoryGame';
 import {
   Volume2, Mic,
   ArrowRight, ShieldCheck, Star, Award
@@ -18,6 +19,7 @@ export default function InglesGamePage() {
   const { activePet, focusMode, addPoints, updateQuestProgress } = useAuth();
 
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [gameMode, setGameMode] = useState<'pronuncia' | 'memoria'>('pronuncia');
   const [isListening, setIsListening] = useState(false);
   const [spokenResult, setSpokenResult] = useState('');
   const [recognitionError, setRecognitionError] = useState('');
@@ -201,6 +203,45 @@ export default function InglesGamePage() {
           </div>
         </div>
       </div>
+
+      {/* SELETOR DE MODO (Fase 3.3): Pronúncia ou Memória Mágica */}
+      <div className="grid grid-cols-2 gap-2 max-w-sm mx-auto mb-6">
+        <button
+          type="button"
+          onClick={() => {
+            sounds.playClick();
+            stopSpeaking();
+            setGameMode('pronuncia');
+          }}
+          className={`font-pixel text-[10px] px-3 py-2 rounded-xl border-2 transition-all ${
+            gameMode === 'pronuncia'
+              ? 'bg-purple-500 text-white border-purple-300 shadow-[0_3px_0_#581c87]'
+              : 'bg-slate-800 text-slate-400 border-slate-700 hover:border-purple-400'
+          }`}
+        >
+          🎤 PRONÚNCIA
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            sounds.playClick();
+            stopSpeaking();
+            setGameMode('memoria');
+          }}
+          className={`font-pixel text-[10px] px-3 py-2 rounded-xl border-2 transition-all ${
+            gameMode === 'memoria'
+              ? 'bg-fuchsia-500 text-white border-fuchsia-300 shadow-[0_3px_0_#86198f]'
+              : 'bg-slate-800 text-slate-400 border-slate-700 hover:border-fuchsia-400'
+          }`}
+        >
+          🃏 MEMÓRIA
+        </button>
+      </div>
+
+      {gameMode === 'memoria' ? (
+        <EnglishMemoryGame onAddPoints={addPoints} reducedStimuli={focusMode.reduced_stimuli} />
+      ) : (
+      <>
 
       {/* AVISO DO MODO FOCO */}
       {focusMode.is_active && (
@@ -458,6 +499,8 @@ export default function InglesGamePage() {
           </div>
 
         </div>
+      )}
+      </>
       )}
 
     </div>
