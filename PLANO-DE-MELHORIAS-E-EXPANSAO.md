@@ -494,6 +494,7 @@ self.addEventListener('fetch', (event) => {
 | 2.3 Cola do modo real | ✅ Commit `67de297` | Hidratação real da sessão (perfil/saldo/guardião/pet), bônus via RPC, UUID real no perfil local, `loginStudent` deixa de sobrescrever com demo |
 | 2.3 Migração demo→nuvem | ✅ Commit `67de297` | `migrateDemoProgressToCloud`: moedas acima do kit inicial entram como transação única `demo_migration`; XP só sobe; flag `kids_demo_migrated_<uid>` por dispositivo |
 | 2.2 Multi-perfil e 2.4 Painel real | ⏳ Próximos | — |
+| 2.1/2.3 Testes E2E autenticados | ✅ 22/10/2026 | Cadastro real completo (sessão imediata, guardião, perfil, bônus 200 via RPC, pet); saldo da view consistente; RPC +50; **isolamento entre contas** (A não vê lançamentos de B; B não altera o perfil de A — 0 linhas, RLS 42501). Nota: contas criadas antes de desativar "Confirm email" continuam bloqueadas até confirmação manual em Authentication → Users |
 
 **Achados da fase (bugs latentes corrigidos):** (1) INSERT direto no `points_ledger` era bloqueado por RLS — bônus agora via `apply_points_transaction`; (2) cadastro real gravava id falso `student-<ts>` no perfil local (isDemo errado, RPC com FK inválida); (3) login real sobrescrevia o estado com perfil demo.
 
