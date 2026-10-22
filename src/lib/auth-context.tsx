@@ -6,6 +6,7 @@ import { PET_CATALOG, ACCESSORY_CATALOG, INITIAL_QUESTS, TERMS_VERSION } from '.
 import { supabase, isSupabaseConfigured } from './supabase';
 import { sounds } from './sound-effects';
 import { validateNickname } from './nickname-moderator';
+import { trackEvent } from './analytics';
 
 interface SignUpParams {
   guardianEmail: string;
@@ -790,6 +791,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       });
 
+      if (realMode) {
+        trackEvent('signup', '/cadastro');
+      }
+
       if (typeof window !== 'undefined') {
         localStorage.setItem('kids_profile', JSON.stringify(newProfile));
         localStorage.setItem('kids_guardian', JSON.stringify(newGuardian));
@@ -815,7 +820,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Migra o progresso demo (se houver) ANTES de hidratar o estado local
           await migrateDemoProgressToCloud(userId);
           const hydrated = await hydrateFromServerSession(userId);
-          if (hydrated) return { success: true };
+          if (hydrated) {
+            trackEvent('login', '/login');
+            return { success: true };
+          }
         }
         // Sem perfil na nuvem: fallback demo gracioso (não deixa a criança bloqueada)
         loginAsDemo(email.split('@')[0] || 'Campeão', 3);

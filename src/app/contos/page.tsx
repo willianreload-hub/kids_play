@@ -9,6 +9,7 @@ import { PetIcon } from '../../components/PetIcon';
 import { sounds } from '../../lib/sound-effects';
 import { speakText, stopSpeaking } from '../../lib/speech';
 import { useLocalStorageState } from '../../lib/client-hooks';
+import { trackEvent } from '../../lib/analytics';
 import { ArrowLeft, BookOpen, Check, Volume2, Sparkles, Star } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -114,6 +115,7 @@ export default function ContosPage() {
     const firstTime = !completedTales.includes(activeTale.id);
     sounds.playApplause();
     stopSpeaking();
+    trackEvent('conto_concluido', '/contos');
 
     confetti({
       particleCount: 90,

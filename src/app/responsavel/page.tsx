@@ -8,6 +8,7 @@ import { PetIcon } from '../../components/PetIcon';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { SUBJECTS, AVATAR_PRESETS, PET_CATALOG, TERMS_VERSION, TERMS_UPDATED_AT, TERMS_SECTIONS } from '../../lib/content-data';
 import { validateNickname } from '../../lib/nickname-moderator';
+import { trackEvent } from '../../lib/analytics';
 import {
   ShieldCheck, Clock, Award, BookOpen, Heart, Settings,
   AlertTriangle, Lightbulb, UserCheck, Users, Plus, School
@@ -252,6 +253,7 @@ export default function ResponsavelPage() {
       setTurmaError(error.message);
     } else {
       sounds.playSuccess();
+      trackEvent('turma_entrada', '/responsavel');
       setShowJoinTurma(false);
       setTurmaCode('');
       loadTurmas();

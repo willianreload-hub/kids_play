@@ -7,6 +7,7 @@ import { PetCompanion } from '../components/PetCompanion';
 import { ParticleTrail } from '../components/ParticleTrail';
 import { PwaRegister } from '../components/PwaRegister';
 import { CustomCursor } from '../components/CustomCursor';
+import { AnalyticsTracker } from '../components/AnalyticsTracker';
 
 // Fontes auto-hospedadas pelo next/font (zero requisições externas em produção).
 // As variáveis CSS alimentam o design system em globals.css (@theme e .font-pixel).
@@ -64,6 +65,7 @@ export default function RootLayout({
             <ParticleTrail />
             <PwaRegister />
             <CustomCursor />
+            <AnalyticsTracker />
           </div>
         </AuthProvider>
       </body>
