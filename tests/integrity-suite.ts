@@ -2,7 +2,8 @@ import {
   QUESTION_BANK,
   PET_CATALOG,
   ACCESSORY_CATALOG,
-  ACHIEVEMENTS_CATALOG
+  ACHIEVEMENTS_CATALOG,
+  ENGLISH_VOCABULARY
 } from '../src/lib/content-data';
 import { validateNickname } from '../src/lib/nickname-moderator';
 import * as fs from 'fs';
@@ -81,6 +82,30 @@ QUESTION_BANK.forEach((q, idx) => {
 if (qErrors === 0) {
   assert(true, 'Questões', `Todas as ${QUESTION_BANK.length} questões do banco são válidas e consistentes.`);
 }
+
+// ==============================================================================
+// TESTE 1b: METAS DE CONTEÚDO (Fase 3) — o CI reprova se alguma matéria encolher
+// ==============================================================================
+console.log('\n--- 1b. Testando Metas de Conteúdo da Fase 3 ---');
+const MIN_QUESTIONS_BY_SUBJECT: Record<string, number> = {
+  matematica: 30,
+  portugues: 25,
+  ciencias: 25,
+  historia_geografia: 25,
+};
+Object.keys(MIN_QUESTIONS_BY_SUBJECT).forEach((subject) => {
+  const count = QUESTION_BANK.filter((q) => q.subject_id === subject).length;
+  assert(
+    count >= MIN_QUESTIONS_BY_SUBJECT[subject],
+    'Meta de Conteúdo',
+    `Matéria '${subject}' com ${count} questões (meta mínima: ${MIN_QUESTIONS_BY_SUBJECT[subject]})`
+  );
+});
+assert(
+  ENGLISH_VOCABULARY.length >= 100,
+  'Meta de Conteúdo',
+  `Vocabulário de inglês com ${ENGLISH_VOCABULARY.length} palavras (meta mínima: 100)`
+);
 
 // ==============================================================================
 // TESTE 2: CATÁLOGO DE PETS & RENDERIZADOR SVG (PetIcon.tsx)
