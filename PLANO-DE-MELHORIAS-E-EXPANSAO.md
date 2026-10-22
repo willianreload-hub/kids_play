@@ -546,10 +546,10 @@ const MIN_QUESTIONS_BY_SUBJECT: Record<string, number> = {
 
 | # | Iniciativa | Escopo essencial | Notas éticas |
 |---|---|---|---|
-| 4.1 | **Pets 15 → 20 + evolução visual** | 5 novos pets (biomas brasileiros — sinergia com o jogo de biomas); `PetIcon.tsx` ganha variantes por estágio de evolução (nível 1/3/5 mudam detalhes do SVG). | Novos pets entram no seed SQL e no integrity-suite (gate de 15 vira 20). |
-| 4.2 | **Vila v2** | Grade 10×8 (toolbar de rolagem); plantações com ciclo real (regar 1×/dia → streak de jardineiro); **visita à vila de amigos** (somente leitura, sem interação nem chat). | Visitas mostram apenas nickname moderado + vila; nenhuma comunicação direta. |
-| 4.3 | **Temporadas** | Passe da Sabedoria renovável (30 níveis por estação) com cosméticos sazonais; calendário no hub. | Continua 100% gratuito — sem passe pago. |
-| 4.4 | **Desafios assíncronos éticos** | Ghost replay da digitação (superar o próprio recorde e o "fantasma" do ranking sem dados expostos); torneio semanal por código de turma (entrada por código, sem busca pública de nomes). | Sem ranking global de menores; torneios sempre mediados por código/educador. |
+| 4.1 | **Pets 15 → 20 + evolução visual** — ✅ `afad22f` | CONCLUÍDO: 5 pets dos biomas (Tatu/Cerrado, Preá/Pampa, Tucano/Mata Atlântica, Boto/Amazônia, Arara/Pantanal) com SVG pixel-art de 3 humores; prop `level` com badge ⭐ (nível 3+) e 👑 brilhante (nível 5); gate 15→20 no CI; seed no schema.sql + `migration-fase4-pets.sql` para o banco atual |
+| 4.2 | **Vila v2** — ✅ (parcial) `fcfdd6e` | Grade 10×8 (80 blocos, era 48) com detecção de versão de save (layouts antigos migram sozinhos). **Pendentes da fase:** plantações com ciclo diário e visitas à vila de amigos (exige vila persistida na nuvem — tabela `village_tiles` no schema da Fase 5) |
+| 4.3 | **Temporadas** — ✅ (núcleo) `fcfdd6e` | 4 estações do hemisfério sul com título sazonal no banner do Passe da Sabedoria ("Guardião do Sol" etc.); `getCurrentSeason` pura com 7 testes unitários. **Pendente:** reset progressivo do Passe por temporada + cosméticos visuais aplicados |
+| 4.4 | **Desafios assíncronos éticos** — ✅ (ghost) `4671598` | Fantasma do recorde na digitação: o próprio melhor WPM vira um fantasma no HUD; superá-lo rende +20 moedas e troféu "NOVO RECORDE PESSOAL" — competição apenas consigo mesmo, sem ranking público de menores. **Pendente:** torneios por código de turma (exige tabelas de torneio — Fase 5) |
 
 ---
 
