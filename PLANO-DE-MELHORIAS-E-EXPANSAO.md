@@ -558,7 +558,7 @@ const MIN_QUESTIONS_BY_SUBJECT: Record<string, number> = {
 | # | Iniciativa | Escopo essencial |
 |---|---|---|
 | 5.1 | **Modo Escola** | Perfil de professor; turmas por código de convite; dashboard pedagógico por habilidade BNCC da turma; atribuição de "deveres" (quests para a turma). Schema: tabelas `classes`, `class_students`, `class_assignments` com RLS de professor. |
-| 5.2 | **LGPD v2** | Termo de uso versionado com consentimento explícito registrado (`guardians.accepted_terms_at` já existe — adicionar `terms_version`); fluxo de exportação e apagamento de dados do responsável; revisão legal antes da escala. |
+| 5.2 | **LGPD v2** — ✅ `41eec34` | CONCLUÍDO: Termo de Uso & Privacidade **versionado** (v2, 5 seções em linguagem clara) registrado no cadastro (`guardians.accepted_terms_version`) com re-aceitação no painel; **portabilidade real**: botão "BAIXAR MEUS DADOS" exporta guardião + perfis da família + moedas + sessões + Modo Foco em JSON (viabilizado pelas políticas aluno-ou-guardião da Fase 2); migração `migration-fase5-lgpd.sql`. Exclusão por e-mail documentada no termo (DPO/fluxo manual) |
 | 5.3 | **Analytics ético** | Plausible self-hosted (sem cookies cross-site, sem fingerprinting): DAU, tempo de estudo, precisão por habilidade, funil cadastro→1º jogo. |
 | 5.4 | **5º ano + i18n** | Estender `SchoolGrade` para `3 | 4 | 5` (schema CHECK + types + conteúdo EF05\*); internacionalização PT→EN/ES via roteamento de locale do App Router. |
 
