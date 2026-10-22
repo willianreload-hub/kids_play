@@ -9,3 +9,4 @@ export { QUESTION_BANK } from './content/questions';
 export { ENGLISH_VOCABULARY, type EnglishWordItem } from './content/english';
 export { ACHIEVEMENTS_CATALOG } from './content/achievements';
 export { TALE_CATALOG, type Tale, type TalePage, type TaleQuestion } from './content/tales';
+export { TERMS_VERSION, TERMS_UPDATED_AT, TERMS_SECTIONS, type TermsSection } from './content/terms';

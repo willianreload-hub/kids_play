@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useTransition } from 'react';
 import { StudentProfile, Guardian, FocusModeSettings, Pet, SchoolGrade, UserPet, UserAccessory, QuestItem } from './types';
-import { PET_CATALOG, ACCESSORY_CATALOG, INITIAL_QUESTS } from './content-data';
+import { PET_CATALOG, ACCESSORY_CATALOG, INITIAL_QUESTS, TERMS_VERSION } from './content-data';
 import { supabase, isSupabaseConfigured } from './supabase';
 import { sounds } from './sound-effects';
 import { validateNickname } from './nickname-moderator';
@@ -701,6 +701,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             email: params.guardianEmail,
             full_name: params.guardianName,
             phone: params.guardianPhone || null,
+            accepted_terms_version: TERMS_VERSION,
           });
 
           await supabase.from('profiles').insert({

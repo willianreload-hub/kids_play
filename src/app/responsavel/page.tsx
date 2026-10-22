@@ -6,7 +6,7 @@ import { sounds } from '../../lib/sound-effects';
 import { PixelButton } from '../../components/PixelButton';
 import { PetIcon } from '../../components/PetIcon';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
-import { SUBJECTS, AVATAR_PRESETS, PET_CATALOG } from '../../lib/content-data';
+import { SUBJECTS, AVATAR_PRESETS, PET_CATALOG, TERMS_VERSION, TERMS_UPDATED_AT, TERMS_SECTIONS } from '../../lib/content-data';
 import { validateNickname } from '../../lib/nickname-moderator';
 import {
   ShieldCheck, Clock, Award, BookOpen, Heart, Settings,
@@ -132,6 +132,88 @@ export default function ResponsavelPage() {
   const handleSwitchChild = async (studentId: string) => {
     sounds.playClick();
     await switchStudentProfile(studentId);
+  };
+
+  // LGPD v2 (Fase 5.2): aceite versionado dos termos — derivado do guardião,
+  // com marcação local apenas no evento de aceite (sem setState-in-effect)
+  const guardianTermsVersion = (guardian as { accepted_terms_version?: number } | null)?.accepted_terms_version ?? null;
+  const [justAcceptedVersion, setJustAcceptedVersion] = useState<number | null>(null);
+  const [isAcceptingTerms, setIsAcceptingTerms] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
+
+  const termsAcceptedVersion = justAcceptedVersion ?? guardianTermsVersion;
+  const termsUpToDate = termsAcceptedVersion !== null && termsAcceptedVersion >= TERMS_VERSION;
+
+  const handleAcceptTerms = async () => {
+    setIsAcceptingTerms(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { error } = await supabase
+        .from('guardians')
+        .update({ accepted_terms_version: TERMS_VERSION, accepted_terms_updated_at: new Date().toISOString() })
+        .eq('id', user.id);
+      if (!error) {
+        setJustAcceptedVersion(TERMS_VERSION);
+        sounds.playSuccess();
+      }
+    }
+    setIsAcceptingTerms(false);
+  };
+
+  // LGPD: PORTABILIDADE — exporta todos os dados da família em JSON
+  const handleExportData = async () => {
+    if (isDemo || !isSupabaseConfigured) {
+      setAddChildError('A exportação requer a conta real conectada.');
+      return;
+    }
+    setIsExporting(true);
+    sounds.playClick();
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Sessão expirada');
+
+      const exportData: Record<string, unknown> = {
+        app: 'Kids-Player',
+        exported_at: new Date().toISOString(),
+        termos_aceitos_versao: termsAcceptedVersion,
+      };
+
+      exportData.guardiao = (await supabase.from('guardians').select('*').eq('id', user.id).single()).data;
+
+      const { data: familyRows } = await supabase
+        .from('profiles')
+        .select('*')
+        .or(`id.eq.${user.id},guardian_id.eq.${user.id}`);
+      exportData.perfis_da_familia = familyRows;
+
+      const ids = (familyRows || []).map(r => (r as { id: string }).id);
+      if (ids.length > 0) {
+        exportData.historico_de_moedas = (
+          await supabase.from('points_ledger').select('student_id,amount,reason,created_at').in('student_id', ids)
+        ).data;
+        exportData.sessoes_de_jogo = (
+          await supabase
+            .from('game_sessions')
+            .select('game_type,score,accuracy_percent,duration_seconds,created_at')
+            .in('student_id', ids)
+        ).data;
+        exportData.configuracoes_modo_foco = (
+          await supabase.from('focus_mode_settings').select('*').in('student_id', ids)
+        ).data;
+      }
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'kids-player-meus-dados.json';
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setAddChildError('Não foi possível exportar agora. Tente novamente.');
+    }
+    setIsExporting(false);
   };
 
   const handleSaveSettings = () => {
@@ -528,18 +610,82 @@ export default function ResponsavelPage() {
           </div>
         </div>
 
-        {/* Zona de Gerenciamento de Dados */}
-        <div className="border-t border-slate-800 pt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-slate-400">
-            Deseja redefinir o progresso ou limpar os dados armazenados localmente neste navegador?
-          </p>
-          <button
-            type="button"
-            onClick={() => setConfirmResetModal(true)}
-            className="text-xs bg-rose-950 hover:bg-rose-900 border border-rose-500 text-rose-300 px-3 py-2 rounded-xl transition-colors shrink-0"
-          >
-            Limpar Dados Deste Dispositivo 🗑️
-          </button>
+        {/* Zona de Gerenciamento de Dados (LGPD v2 — Fase 5.2) */}
+        <div className="border-t border-slate-800 pt-4 space-y-4">
+          {/* Termos de uso versionados */}
+          <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3">
+              <div>
+                <span className="text-xs font-bold text-white block">
+                  Termos de Uso & Privacidade — versão {TERMS_VERSION} ({TERMS_UPDATED_AT})
+                </span>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  {termsUpToDate
+                    ? '✅ Você está na versão mais recente dos termos.'
+                    : termsAcceptedVersion === null
+                      ? 'Conta criada antes do versionamento — confira e confirme os termos atuais.'
+                      : `⚠️ Você aceitou a versão ${termsAcceptedVersion}. Uma nova versão está disponível.`}
+                </p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    sounds.playClick();
+                    setShowTerms(s => !s);
+                  }}
+                  className="text-[11px] bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 px-3 py-1.5 rounded-lg transition-colors"
+                >
+                  {showTerms ? 'OCULTAR' : 'LER TERMOS'}
+                </button>
+                {!termsUpToDate && (
+                  <button
+                    type="button"
+                    onClick={handleAcceptTerms}
+                    disabled={isAcceptingTerms}
+                    className="text-[11px] font-bold bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    {isAcceptingTerms ? '...' : 'ACEITAR'}
+                  </button>
+                )}
+              </div>
+            </div>
+            {showTerms && (
+              <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1">
+                {TERMS_SECTIONS.map(section => (
+                  <div key={section.title}>
+                    <span className="text-[11px] font-bold text-emerald-300 block">{section.title}</span>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">{section.text}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Portabilidade e exclusão */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-xs text-slate-400">
+              Direito de portabilidade (LGPD): baixe todos os dados da sua família em JSON, ou limpe os dados
+              guardados neste navegador.
+            </p>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={handleExportData}
+                disabled={isExporting}
+                className="text-xs bg-cyan-950 hover:bg-cyan-900 border border-cyan-500 text-cyan-300 px-3 py-2 rounded-xl transition-colors disabled:opacity-50"
+              >
+                {isExporting ? 'GERANDO...' : 'BAIXAR MEUS DADOS 📄'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmResetModal(true)}
+                className="text-xs bg-rose-950 hover:bg-rose-900 border border-rose-500 text-rose-300 px-3 py-2 rounded-xl transition-colors"
+              >
+                Limpar Deste Dispositivo 🗑️
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
