@@ -463,7 +463,7 @@ self.addEventListener('fetch', (event) => {
 
 **Gargalo identificado (candidato à Fase 2):** FCP/LCP puxados pelo Google Fonts via `<link>` em `layout.tsx` (já apontado pelo warning `@next/next/no-page-custom-font`) — migrar para `next/font/google` deve puxar Performance para ~90+. TBT/CLS excelentes (client-side leve).
 
-- [ ] Próxima medição após migrar as fontes (Fase 2) e comparar.
+**✅ RE-MEDIDO em 22/10/2026 (após next/font):** Performance **86** · **FCP 2.735ms → 967ms (-65%)** · LCP 3.464ms → 3.009ms · A11y 98 · BP 100 · SEO 100. Gargalo eliminado; fontes auto-hospedadas (commit `5164a52`).
 
 **Critério de aceite da Fase 1:** `npx eslint .` com 0 erros e apenas o warning documentado do `PetCompanion` · `npm run test:unit` rodando no CI · `content-data` particionado com barrel compatível · PWA v2 verificado em navegação offline · a11y auditada nas 18 rotas.
 
@@ -483,6 +483,21 @@ self.addEventListener('fetch', (event) => {
 | 2.4 | **Painel do responsável real** | A página `responsavel/` passa a ler `game_sessions`, `attempts`, `focus_sessions` e as views `leaderboard_*` do aluno real; gráficos por habilidade BNCC (recharts opcional). Opcional: e-mail semanal (Supabase Edge Function + Resend). | Responsável vê tempo de estudo, precisão por matéria e histórico de foco do próprio filho (RLS garante isolamento). |
 
 **Risco da fase:** anon key client-side é o modelo do projeto (RLS é a barreira) — não introduzir service role key no cliente em hipótese alguma.
+
+### ✅ Progresso da Fase 2 (22/10/2026)
+
+| Item | Status | Evidência |
+|---|---|---|
+| 2.1 Schema + seed no ar | ✅ | 7 consultas REST: 6 matérias, 15 pets, 16 acessórios, 10 conquistas, 4 quests, 5 lootbox, 4 questões |
+| 2.1 RLS verificado | ✅ | Leituras sensíveis vazias para anônimo; INSERT anônimo (moedas/perfil/foco) rejeitado com 42501 |
+| 2.1 Produção conectada | ✅ | URL real + publishable key embutidas no bundle da Vercel (variáveis reconfiguradas após remover as marcadas como "Secret") |
+| 2.3 Cola do modo real | ✅ Commit `67de297` | Hidratação real da sessão (perfil/saldo/guardião/pet), bônus via RPC, UUID real no perfil local, `loginStudent` deixa de sobrescrever com demo |
+| 2.3 Migração demo→nuvem | ✅ Commit `67de297` | `migrateDemoProgressToCloud`: moedas acima do kit inicial entram como transação única `demo_migration`; XP só sobe; flag `kids_demo_migrated_<uid>` por dispositivo |
+| 2.2 Multi-perfil e 2.4 Painel real | ⏳ Próximos | — |
+
+**Achados da fase (bugs latentes corrigidos):** (1) INSERT direto no `points_ledger` era bloqueado por RLS — bônus agora via `apply_points_transaction`; (2) cadastro real gravava id falso `student-<ts>` no perfil local (isDemo errado, RPC com FK inválida); (3) login real sobrescrevia o estado com perfil demo.
+
+**Pendências operacionais:** (1) "Confirm email" AINDA ATIVO no projeto — com ele ligado o cadastro real cria o usuário de auth mas os inserts seguintes falham (sem sessão, RLS bloqueia); desativar em Authentication → Sign In / Providers (recomendação já presente no README); (2) seguimento de segurança: views `student_balances`/`leaderboard_*` rodam com o dono e ignoram RLS — para produção, avaliar `security_invoker = on`; (3) em produção futura com e-mail confirmado, o cadastro deve avisar "confirme seu e-mail" em vez de seguir como se tudo tivesse sido gravado.
 
 ---
 
