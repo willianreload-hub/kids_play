@@ -124,6 +124,16 @@ CREATE POLICY "Aluno visualiza seu histórico de caixas"
     USING (auth.uid() = student_id OR public.is_student_guardian(student_id));
 
 -- ==============================================================================
+-- 6. DESVÍNCULO profiles -> auth.users: filhos "virtuais"
+-- No modelo multi-perfil, o filho não faz login próprio (a sessão é do guardião).
+-- O vínculo profiles.id -> auth.users.id herdado do modelo 1:1 impede a criação
+-- de perfis com UUID próprio (erro FK 23503). Removemos SOMENTE este vínculo;
+-- todos os demais FKs de integridade (guardians, pets, ledger, tentativas...)
+-- permanecem intactos, e o RLS continua controlando quem pode criar/ver cada perfil.
+-- ==============================================================================
+ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_id_fkey;
+
+-- ==============================================================================
 -- Nota: as políticas originais de cada tabela permanecem criadas pelo schema.sql
 -- (semântica auth.uid() = student_id); as regras acima são ADITIVAS — um aluno
 -- continua vendo apenas os próprios dados, e o guardião passa a enxergar os
