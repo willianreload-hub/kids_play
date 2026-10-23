@@ -1,6 +1,8 @@
-// Kids-Player Service Worker v2
+// Kids-Player Service Worker v3
 // BUMPAR A VERSÃO A CADA RELEASE (é aqui que o cache imutável é invalidado):
-const CACHE_VERSION = 'kids-player-v2';
+// v2 → v3: Contos, Vila 10×8, pets dos biomas (20), dificuldade adaptativa, Memória Mágica,
+//          Fantasma do Recorde, Temporadas, Modo Escola, 5º ano, LGPD v2, analytics ético
+const CACHE_VERSION = 'kids-player-v3';
 
 self.addEventListener('install', () => {
   self.skipWaiting();
