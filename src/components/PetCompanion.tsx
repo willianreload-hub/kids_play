@@ -18,9 +18,10 @@ export function PetCompanion({ customMessage, mood = 'idle' }: PetCompanionProps
     'Olá, campeão! Qual desafio nós vamos vencer hoje juntos?'
   );
 
-  // Mensagens contextuais amigáveis
+  // Mensagens contextuais amigáveis — reatividade intencional ao contexto
   useEffect(() => {
     if (customMessage) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- mensagem contextual reage ao contexto; documentado no PLANO-DE-MELHORIAS (Fase 1)
       setCurrentMessage(customMessage);
       return;
     }

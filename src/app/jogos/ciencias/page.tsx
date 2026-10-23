@@ -67,6 +67,7 @@ export default function CienciasGamePage() {
       }, 400);
       return () => clearTimeout(timer);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- TTS re-fires quando a pergunta muda; incluir handleReadQuestion no deps criaria re-render a cada render (função recriada)
   }, [answeredCount, currentQ, focusMode.is_active, focusMode.tts_auto_read]);
 
   const handleSelectOption = (optionText: string, optionId: string) => {

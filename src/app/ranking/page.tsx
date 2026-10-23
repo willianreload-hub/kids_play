@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element -- avatares SVG pixel-art do ranking não são otimizáveis pelo next/image */
 'use client';
 
 import React, { useState, useMemo } from 'react';

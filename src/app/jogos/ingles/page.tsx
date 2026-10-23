@@ -47,6 +47,7 @@ export default function InglesGamePage() {
       }, 500);
       return () => clearTimeout(timer);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- TTS re-fires quando a palavra muda; handlePlayAudio é recriado a cada render
   }, [currentIndex, currentItem, focusMode.is_active, focusMode.tts_auto_read]);
 
   // Reproduzir frase de exemplo

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '../../lib/auth-context';
 import { AVATAR_PRESETS, ACHIEVEMENTS_CATALOG } from '../../lib/content-data';
 import { PixelButton } from '../../components/PixelButton';
@@ -16,6 +17,7 @@ import {
 import confetti from 'canvas-confetti';
 
 export default function PerfilPage() {
+  const router = useRouter();
   const { 
     profile, 
     guardian, 
@@ -381,7 +383,7 @@ export default function PerfilPage() {
             variant="warning"
             size="sm"
             className="w-full"
-            onClick={() => window.location.href = '/pets'}
+            onClick={() => router.push('/pets')}
           >
             VER COLEÇÃO COMPLETA DE PETS 🐾
           </PixelButton>

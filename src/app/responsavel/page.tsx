@@ -273,7 +273,10 @@ export default function ResponsavelPage() {
   };
 
   useEffect(() => {
+    // setState acontece assincronamente dentro do loadTurmas (apos await) — padrão de data fetching legítimo
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadTurmas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadTurmas fecha sobre profile?.id e isDemo; adicioná-la aos deps criaria re-fetch a cada render
   }, [profile?.id, isDemo]);
 
   const handleSaveSettings = () => {
@@ -292,6 +295,8 @@ export default function ResponsavelPage() {
     sounds.playClick();
     if (typeof window !== 'undefined') {
       localStorage.clear();
+      // Navegação integral: limpa todo o estado React (contextos, memória) junto com o localStorage
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.href = '/';
     }
   };

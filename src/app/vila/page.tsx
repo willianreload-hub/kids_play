@@ -57,8 +57,6 @@ const ITEMS_CATALOG: CatalogItem[] = [
 const GRID_COLS = 10;
 const GRID_ROWS = 8;
 const TOTAL_TILES = GRID_COLS * GRID_ROWS;
-// Versão do formato de save da vila: layouts antigos (8×6) são recriados no padrão
-const VILLAGE_SAVE_VERSION = 2;
 
 // Abas do catálogo de construção da vila
 const CATEGORY_TABS: { id: 'pisos' | 'moveis' | 'estudo' | 'jardim'; label: string }[] = [

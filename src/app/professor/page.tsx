@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { SUBJECTS } from '../../lib/content-data';
 import { sounds } from '../../lib/sound-effects';
@@ -176,7 +175,12 @@ export default function ProfessorPage() {
   };
 
   useEffect(() => {
-    if (phase === 'painel' && teacherId) loadClasses();
+    if (phase === 'painel' && teacherId) {
+      // setState acontece assincronamente dentro do loadClasses (apos await) — padrão de data fetching legítimo
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      loadClasses();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadClasses é estável no escopo deste effect (fecha sobre teacherId imutável)
   }, [phase, teacherId]);
 
   const openClass = async (cls: ClassRow) => {
