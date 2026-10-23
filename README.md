@@ -1,17 +1,17 @@
-# Kids-Player - Plataforma de Reforço Escolar Gamificado
+# Kids-Player — Plataforma de Reforço Escolar Gamificado
 
-Plataforma lúdica de reforço escolar alinhada à **BNCC** para crianças do **3º e 4º ano do Ensino Fundamental** (8 a 10 anos). Desenvolvida com estética **Pixel Art retrô**, minijogos originais inspirados em gêneros clássicos, sistema de **PETs companheiros**, **Trono dos Campeões (Ranking)**, **Quests Diárias** e o inovador **Modo Foco** (apoio pedagógico para atenção e TDAH).
+Plataforma lúdica de reforço escolar alinhada à **BNCC** para crianças do **3º, 4º e 5º ano do Ensino Fundamental** (8 a 11 anos). Desenvolvida com estética **Pixel Art retrô**, minijogos originais inspirados em gêneros clássicos, sistema de **PETs companheiros dos biomas brasileiros**, **Teatro dos Contos** (fábulas interativas com TTS), **Vila Mágica dos Pets** (construção e decoração com economia de moedas), **Trono dos Campeões**, **Modo Escola** (turmas por código de convite para professores), **Modo Foco** (apoio pedagógico para atenção e TDAH), **dificuldade adaptativa** e **temporadas sazonais** no Passe da Sabedoria.
 
 ---
 
 ## 🛠️ Stack Tecnológica
 
 - **Frontend:** Next.js 16 (App Router) + React 19 + TypeScript + Tailwind CSS
-- **Design System:** Pixel Art Retrô (Press Start 2P + Fredoka), botões táteis 3D com som físico
+- **Design System:** Pixel Art Retrô (Press Start 2P + Fredoka auto-hospedadas via next/font), botões táteis 3D com som físico
 - **Áudio & Voz:** Web Audio API (sintetizador 8-bit nativo zero-bandwidth) + Web Speech API (leitura em voz e repetição)
-- **Backend & Banco:** Supabase (PostgreSQL, Auth, Storage e Row Level Security)
-- **Hospedagem:** Vercel (plano gratuito)
-- **Segurança & Ética:** Alinhado à LGPD e ECA Digital (sem anúncios, sem chat aberto, sem dinheiro real, proteção estrita de dados sensíveis)
+- **Backend & Banco:** Supabase (PostgreSQL, Auth, RLS, RPCs seguras, Row Level Security em 100% das tabelas)
+- **Hospedagem:** Vercel (deploy automático a cada push, CI no GitHub Actions)
+- **Segurança & Ética:** LGPD v2 (termos versionados + portabilidade de dados), ECA Digital, zero PII no analytics, sem anúncios, sem chat aberto, sem dinheiro real
 
 ---
 
@@ -111,29 +111,33 @@ Projeto Kids-Player/
 
 ---
 
-## 🎮 Minijogos Curriculares BNCC (8 Aventuras)
+## 🎮 Minijogos Curriculares BNCC (10 Aventuras + Teatro dos Contos)
 
-1. **🚀 Corrida Espacial da Tabuada (`/jogos/tabuada-espacial`)**: Pilotagem espacial arcade, combate a asteroides com multiplicação e divisão (`EF03MA03`, `EF04MA04`) e batalha contra o Chefão Mega Meteoro.
-2. **🧭 Expedição pelos Biomas do Brasil (`/jogos/biomas`)**: Sobrevoo de balão pelos 9 grandes ecossistemas brasileiros (Amazônia, Caatinga, Cerrado, Pantanal, Mata Atlântica, Pampa, Manguezais, Araucárias e Cocais), com insígnias de guardião da natureza (`EF03GE04`, `EF04GE05`).
-3. **🧪 Alquimia das Frações & Medidas (`/jogos/fracoes`)**: Corte visual de pizzas e tortas mágicas ($\frac{1}{2}$, $\frac{1}{4}$, $\frac{3}{4}$, $\frac{2}{3}$), poções alquímicas e conversão de litros, metros e quilogramas (`EF04MA09`, `EF04MA20`).
-4. **⛏️ Mundo dos Blocos da Sabedoria (`/jogos/matematica`)**: Mineração de gemas e pedras respondendo a contas de adição e subtração com reserva (`EF03MA05`).
-5. **🌉 Salto nas Ilhas Celestes (`/jogos/portugues`)**: Corrida de plataformas ativando pontes com regras ortográficas de S/SS, R/RR e M antes de P/B (`EF03LP01`).
-6. **🔬 Estação Científica da Natureza (`/jogos/ciencias`)**: Observatório ambiental com ciclos da água, seres vivos, fotossíntese e fases da lua (`EF03CI07`, `EF04CI04`, `EF04CI11`).
-7. **🗣️ Ilha do Inglês Falante (`/jogos/ingles`)**: Treinamento de pronúncia com síntese e reconhecimento de voz (Web Speech API).
-8. **⌨️ Mestre do Teclado Retrô (`/jogos/digitacao`)**: Digitação ágil com medição de velocidade (WPM) e precisão.
+1. **🚀 Corrida Espacial da Tabuada (`/jogos/tabuada-espacial`)**: Pilotagem espacial arcade, combate a asteroides com multiplicação e divisão e batalha contra o Chefão Mega Meteoro.
+2. **🧭 Expedição pelos Biomas do Brasil (`/jogos/biomas`)**: Sobrevoo de balão pelos 9 grandes ecossistemas brasileiros com insígnias de guardião da natureza.
+3. **🧪 Alquimia das Frações & Medidas (`/jogos/fracoes`)**: Corte visual de pizzas e tortas mágicas, poções alquímicas e conversão de litros, metros e quilogramas.
+4. **⛏️ Mundo dos Blocos da Sabedoria (`/jogos/matematica`)**: Mineração de gemas respondendo contas de adição e subtração com **dificuldade adaptativa** (o nível sobe com 2 acertos seguidos e desce no erro).
+5. **🌉 Salto nas Ilhas Celestes (`/jogos/portugues`)**: Corrida de plataformas ativando pontes com regras ortográficas — também com **dificuldade adaptativa**.
+6. **🔬 Estação Científica da Natureza (`/jogos/ciencias`)**: Observatório ambiental com ciclos da água, seres vivos, fotossíntese e fases da lua — com **dificuldade adaptativa**.
+7. **🗣️ Ilha do Inglês Falante (`/jogos/ingles`)**: Treinamento de pronúncia com síntese e reconhecimento de voz (Web Speech API) + **Modo Memória Mágica** (jogo da memória palavra↔tradução com TTS).
+8. **⌨️ Mestre do Teclado Retrô (`/jogos/digitacao`)**: Digitação ágil com medição de velocidade (WPM), precisão e **Fantasma do Recorde** (supere seu próprio melhor WPM por +20 moedas!).
+9. **🎭 Teatro dos Contos (`/contos`)**: Fábulas originais em leitura paginada com TTS, sons de virar página e aplausos, perguntinhas de compreensão e +30 moedas na primeira leitura.
+10. **🏫 Modo Escola (`/professor`)**: Professores criam turmas com código de convite, acompanham o desempenho pedagógico dos alunos e publicam deveres de estudo.
+
+> **152 questões BNCC** no banco (3º, 4º e 5º ano), **100 palavras** de inglês, códigos verificados contra a base oficial do MEC.
 
 ---
 
 ## 🐾 Companheiros Mágicos & Gamificação Ética
 
-- **15 PETs Colecionáveis:** Pipoca, Bolha, Sabichão, Faísca, Cósmico, Solzinho, Trovãozinho, Gota d'Água, Lupin, Estelar, Titã de Cristal, Glub, Atena, Ignis e Flora — renderizados dinamicamente em SVG pixel-art.
+- **20 PETs Colecionáveis:** Pipoca, Bolha, Sabichão, Faísca, Cósmico, Solzinho, Trovãozinho, Gota d'Água, Lupin, Estelar, Titã de Cristal, Glub, Atena, Ignis, Flora + **Bolinha** (Tatu do Cerrado), **Saltitante** (Preá do Pampa), **Tuc** (Tucano da Mata Atlântica), **Lumi** (Boto da Amazônia) e **Céu** (Arara Azul do Pantanal) — todos renderizados em SVG pixel-art com 3 humores (idle, happy, sad) e **badges de evolução** (⭐ nível 3+, 👑 nível 5).
 - **16 Acessórios Exclusivos:** Chapéus, óculos steampunk e VR, capas de nebulosa, asas de borboleta e auras de fogo fátuo.
-- **Vila Mágica dos Pets:** Construa e decore o lar do seu companheiro em uma grade 8×6 com 19 itens (pisos, móveis, estudos e jardim) adquiridos com as moedas conquistadas estudando.
+- **Vila Mágica dos Pets:** Construa e decore o lar do seu companheiro em uma grade **10×8** (80 blocos!) com 19 itens (pisos, móveis, estudos e jardim) adquiridos com as moedas conquistadas estudando.
 - **Sistema de Cuidados & Afeto:** Alimentação com frutinhas da sabedoria, carinho interativo com ronrom em 8-bit e diálogos pedagógicos com TTS.
 - **Sala de Troféus & Conquistas:** 10 conquistas categorizadas (*Estudo*, *Jogos*, *Pets*, *Hábito*) com resgate de moedas e XP.
 - **Fogo do Saber (Streak 7 Dias):** Bônus ativo de +10% de XP diário para estimular o hábito de estudo regular.
 - **Roleta da Sabedoria Diária:** 1 baú gratuito por dia com prêmios de até 100 moedas, sem anúncios nem microtransações.
-- **Passe da Sabedoria:** Trilha progressiva gratuita de 30 níveis no Hub de Jogos.
+- **Passe da Sabedoria com Temporadas:** Trilha progressiva gratuita de 30 níveis no Hub de Jogos, com título sazonal por estação do hemisfério sul (Verão dos Heróis ☀️, Outono Cósmico 🍂, Inverno Estelar ❄️, Primavera Mágica 🌸).
 - **Ponteiros do Mouse Mágicos:** 5 temas personalizáveis no perfil (`varinha`, `picareta`, `patinha`, `foguete`, `padrao`) com animações de partículas e ondas de clique táteis.
 
 ---
@@ -145,3 +149,5 @@ Projeto Kids-Player/
 - **Modo Foco como Dado Sensível de Saúde:** O indicador de Modo Foco e seus relatórios são estritamente restritos ao aluno e seu responsável via políticas de Row Level Security (RLS). Nunca é exibido nenhum diagnóstico em telas públicas ou rankings.
 - **Economia Ética e Segura:** 0% de dinheiro real, sem compras in-app, sem anúncios e com exibição 100% transparente das probabilidades de abertura dos baús surpresa.
 - **Row Level Security (RLS):** Ativado em 100% das tabelas do banco de dados PostgreSQL.
+- **LGPD v2:** Termos de Uso versionados com re-aceitação; botão **"BAIXAR MEUS DADOS"** exporta todos os dados da família em JSON (portabilidade real). Analytics ético: zero cookies, zero fingerprinting, zero PII.
+- **Modo Escola com privacidade:** Professores veem apenas dados pedagógicos dos alunos das próprias turmas. Dados dos responsáveis e o Modo Foco são **totalmente lacrados** para a escola.
