@@ -20,7 +20,7 @@ interface RankKid {
   avatarUrl?: string;
   petId: string;
   basePointsDaily: number;
-  grade: 3 | 4;
+  grade: 3 | 4 | 5;
   streak: number;
   favoriteSubject: string;
 }
@@ -45,7 +45,7 @@ export default function RankingPage() {
   
   // Filtros de leaderboard
   const [period, setPeriod] = useState<'diario' | 'semanal' | 'mensal'>('diario');
-  const [gradeFilter, setGradeFilter] = useState<'todos' | 3 | 4>('todos');
+  const [gradeFilter, setGradeFilter] = useState<'todos' | 3 | 4 | 5>('todos');
 
   // Estado para consentimento de foto do responsável (ECA Digital)
   const [guardianPhotoConsent, setGuardianPhotoConsent] = useState(false);
@@ -85,7 +85,7 @@ export default function RankingPage() {
       avatarUrl?: string;
       petId: string;
       points: number;
-      grade: 3 | 4;
+      grade: 3 | 4 | 5;
       streak: number;
       favoriteSubject: string;
       isCurrentUser?: boolean;

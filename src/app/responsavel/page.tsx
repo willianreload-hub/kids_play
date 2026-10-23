@@ -99,7 +99,7 @@ export default function ResponsavelPage() {
   // MULTI-PERFIL (Fase 2.2): modal de novo filho
   const [showAddChild, setShowAddChild] = useState(false);
   const [newChildNickname, setNewChildNickname] = useState('');
-  const [newChildGrade, setNewChildGrade] = useState<3 | 4>(3);
+  const [newChildGrade, setNewChildGrade] = useState<3 | 4 | 5>(3);
   const [newChildAvatar, setNewChildAvatar] = useState(AVATAR_PRESETS[0]?.id || 'astro_kid');
   const [newChildPetId, setNewChildPetId] = useState(PET_CATALOG[0]?.id || 'pipoca_raposa');
   const [addChildError, setAddChildError] = useState('');
@@ -910,11 +910,11 @@ export default function ResponsavelPage() {
             {/* Série */}
             <span className="text-xs font-bold text-white block mb-1.5">Ano escolar:</span>
             <div className="flex gap-2 mb-4">
-              {[3, 4].map(g => (
+              {[3, 4, 5].map(g => (
                 <button
                   key={g}
                   type="button"
-                  onClick={() => setNewChildGrade(g as 3 | 4)}
+                  onClick={() => setNewChildGrade(g as 3 | 4 | 5)}
                   className={`font-pixel text-xs px-4 py-2 rounded-xl border-2 transition-all ${
                     newChildGrade === g
                       ? 'bg-fuchsia-500 text-slate-950 border-fuchsia-300'

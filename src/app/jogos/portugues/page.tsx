@@ -21,9 +21,13 @@ export default function PortuguesGamePage() {
   const studentGrade = profile?.school_grade || 3;
 
   // Filtra questões de português para o ano escolar do aluno
-  const questionsList = QUESTION_BANK.filter(
+  // (fallback gracioso: se a série ainda não tiver questões, usa todo o assunto)
+  const gradePool = QUESTION_BANK.filter(
     q => q.subject_id === 'portugues' && q.grade === studentGrade
   );
+  const questionsList: Question[] = gradePool.length > 0
+    ? gradePool
+    : QUESTION_BANK.filter(q => q.subject_id === 'portugues');
 
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [isJumping, setIsJumping] = useState(false);

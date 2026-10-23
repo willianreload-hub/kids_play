@@ -225,7 +225,7 @@ export default function CadastroPage() {
             <label className="block text-xs font-bold text-slate-300 mb-2">
               Ano Escolar do Aluno:
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <button
                 type="button"
                 onClick={() => {
@@ -254,6 +254,21 @@ export default function CadastroPage() {
                 }`}
               >
                 🚀 4º ANO DO FUNDAMENTAL
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  sounds.playClick();
+                  setGrade(5);
+                }}
+                className={`py-3 px-4 rounded-xl border-3 font-pixel text-xs transition-all ${
+                  grade === 5
+                    ? 'bg-amber-500 text-slate-950 border-amber-300 shadow-[0_4px_0_#b45309]'
+                    : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-750'
+                }`}
+              >
+                ⭐ 5º ANO DO FUNDAMENTAL
               </button>
             </div>
           </div>

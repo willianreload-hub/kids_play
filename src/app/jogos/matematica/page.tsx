@@ -21,9 +21,13 @@ export default function MatematicaGamePage() {
   const studentGrade = profile?.school_grade || 3;
 
   // Filtra questões de matemática para o ano escolar do aluno
-  const questionsList = QUESTION_BANK.filter(
+  // (fallback gracioso: se a série ainda não tiver questões, usa todo o assunto)
+  const gradePool = QUESTION_BANK.filter(
     q => q.subject_id === 'matematica' && q.grade === studentGrade
   );
+  const questionsList: Question[] = gradePool.length > 0
+    ? gradePool
+    : QUESTION_BANK.filter(q => q.subject_id === 'matematica');
 
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [isHitting, setIsHitting] = useState(false);

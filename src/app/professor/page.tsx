@@ -64,7 +64,7 @@ export default function ProfessorPage() {
   const [assignments, setAssignments] = useState<AssignmentRow[]>([]);
   const [showCreateClass, setShowCreateClass] = useState(false);
   const [newClassName, setNewClassName] = useState('');
-  const [newClassGrade, setNewClassGrade] = useState<3 | 4>(3);
+  const [newClassGrade, setNewClassGrade] = useState<3 | 4 | 5>(3);
   const [showCreateAssignment, setShowCreateAssignment] = useState(false);
   const [assignmentTitle, setAssignmentTitle] = useState('');
   const [assignmentSubject, setAssignmentSubject] = useState<string>('');
@@ -415,11 +415,11 @@ export default function ProfessorPage() {
                 className="flex-1 bg-slate-950 border-2 border-slate-700 rounded-xl px-3 py-2 text-sm text-white"
               />
               <div className="flex gap-2">
-                {[3, 4].map(g => (
+                {[3, 4, 5].map(g => (
                   <button
                     key={g}
                     type="button"
-                    onClick={() => setNewClassGrade(g as 3 | 4)}
+                    onClick={() => setNewClassGrade(g as 3 | 4 | 5)}
                     className={`font-pixel text-xs px-4 rounded-xl border-2 ${
                       newClassGrade === g
                         ? 'bg-indigo-500 text-white border-indigo-300'

@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     guardian_id UUID REFERENCES public.guardians(id) ON DELETE SET NULL,
     nickname VARCHAR(30) UNIQUE NOT NULL,
-    school_grade INT NOT NULL CHECK (school_grade IN (3, 4)),
+    school_grade INT NOT NULL CHECK (school_grade IN (3, 4, 5)),
     avatar_preset VARCHAR(50) NOT NULL DEFAULT 'astro_kid',
     avatar_url TEXT,
     level INT NOT NULL DEFAULT 1 CHECK (level >= 1),

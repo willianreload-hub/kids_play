@@ -25,7 +25,7 @@ interface PassTier {
 
 export default function JogosPage() {
   const { profile, focusMode, addPoints } = useAuth();
-  const [selectedGrade, setSelectedGrade] = useState<3 | 4>(profile?.school_grade || 3);
+  const [selectedGrade, setSelectedGrade] = useState<3 | 4 | 5>(profile?.school_grade || 3);
   const [activeTab, setActiveTab] = useState<'materias' | 'minijogos' | 'mapa' | 'passe'>('materias');
 
   // Temporada sazonal ativa (Fase 4.3) — hemisfério sul

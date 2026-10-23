@@ -1,4 +1,4 @@
-export type SchoolGrade = 3 | 4;
+export type SchoolGrade = 3 | 4 | 5;
 
 export type PetRarity = 'normal' | 'raro' | 'epico' | 'lendario' | 'mitico';
 
